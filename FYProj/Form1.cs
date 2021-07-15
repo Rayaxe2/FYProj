@@ -30,11 +30,6 @@ namespace FYProj
         {
             //If the globalEventHolder eventhandler is associated to the click event for the form, it is removed
             this.Click -= globalEventHolder;
-
-            //TEST CODE
-            //this.Click += new System.EventHandler(this.Form1_Click);
-            //The above added to form1.designer.cs
-            //MessageBox.Show("TEST");
         }
 
         //When Button is clicked....
@@ -51,6 +46,8 @@ namespace FYProj
                 gb.Text = "Test " + GBNum.ToString();
                 GBNum += 1;
 
+                Point preDragLocation = gb.Location;
+
                 MouseEventHandler dragTableEvent = (s, e) => {
                     //Moves groupbox to mouse location while moving the mouse
                     //(this event handler is added when you click down/hold mouse click on a groupbox and removed when you click up/release mouse click)
@@ -60,14 +57,27 @@ namespace FYProj
                 //Makes groupbox follow mouse when holding mouse click
                 gb.MouseDown += new MouseEventHandler(
                     (s, e) => {
-                        gb.MouseMove += dragTableEvent;
+                        if(e.Button == MouseButtons.Right) {
+                            gb.MouseMove += dragTableEvent;
+                        }
                     }
                 );
 
                 //Makes groupbox stop following mouse when mouse click is released
                 gb.MouseUp += new MouseEventHandler(
                     (s, e) => {
-                        gb.MouseMove -= dragTableEvent;
+                        if(e.Button == MouseButtons.Right) {
+                            gb.MouseMove -= dragTableEvent;
+
+                            //If the groupbox is dragged out of bounds of the client size/form, the movement on it is undone
+                            if (gb.Location.X > this.ClientSize.Width || gb.Location.X < 0 || gb.Location.Y > this.ClientSize.Height || gb.Location.Y < 0)
+                            {
+                                gb.Location = preDragLocation;
+                            }
+                            else {
+                                preDragLocation = gb.Location;
+                            }
+                        }
                     }
                 );
 
@@ -165,6 +175,17 @@ namespace FYProj
 
         gb.Location = this.PointToClient(new Point(Cursor.Position.X - 15, Cursor.Position.Y - 10));
                 };
+
+
+
+
+
+
+
+        //TEST CODE
+            //this.Click += new System.EventHandler(this.Form1_Click);
+            //The above added to form1.designer.cs
+            //MessageBox.Show("TEST");
 
          */
     }
