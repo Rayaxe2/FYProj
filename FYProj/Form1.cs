@@ -50,9 +50,19 @@ namespace FYProj
                 gb.Text = "Test " + GBNum.ToString();
                 GBNum += 1;
 
+                MouseEventHandler dragTableEvent = (s, e) => {
+                    gb.Location = this.PointToClient(new Point(Cursor.Position.X, Cursor.Position.Y));
+                };
+
                 gb.MouseDown += new MouseEventHandler(
                     (s, e) => {
-                        MessageBox.Show("REEEEEE"); 
+                        gb.MouseMove += dragTableEvent;
+                    }
+                );
+
+                gb.MouseUp += new MouseEventHandler(
+                    (s, e) => {
+                        gb.MouseMove -= dragTableEvent;
                     }
                 );
 
