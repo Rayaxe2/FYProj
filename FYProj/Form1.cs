@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Numerics;
 
 namespace FYProj
 {
@@ -51,15 +52,19 @@ namespace FYProj
                 GBNum += 1;
 
                 MouseEventHandler dragTableEvent = (s, e) => {
-                    gb.Location = this.PointToClient(new Point(Cursor.Position.X, Cursor.Position.Y));
-                };
+                    //Moves groupbox to mouse location while moving the mouse
+                    //(this event handler is added when you click down/hold mouse click on a groupbox and removed when you click up/release mouse click)
+                    gb.Location = this.PointToClient(new Point(Cursor.Position.X - 15, Cursor.Position.Y - 10));
+                }; 
 
+                //Makes groupbox follow mouse when holding mouse click
                 gb.MouseDown += new MouseEventHandler(
                     (s, e) => {
                         gb.MouseMove += dragTableEvent;
                     }
                 );
 
+                //Makes groupbox stop following mouse when mouse click is released
                 gb.MouseUp += new MouseEventHandler(
                     (s, e) => {
                         gb.MouseMove -= dragTableEvent;
@@ -132,6 +137,35 @@ namespace FYProj
                         MessageBox.Show("REEEEEE");
                     }
                 );
+
+
+
+
+
+
+
+
+        MouseEventHandler dragTableEvent = (s, e) => {
+                    //gb.Location = (Point) Point.Subtract(this.PointToClient(new Point(Cursor.Position.X, Cursor.Position.Y)), (Size) gb.Location);
+                    //gb.Location = Point.Add(this.PointToClient(new Point(Cursor.Position.X, Cursor.Position.Y)), (Size)Point.Subtract(this.PointToClient(new Point(Cursor.Position.X, Cursor.Position.Y)), (Size)gb.Location));
+                    /* gb.Location = Point.Add(
+                        gb.Location, 
+                        (Size) Point.Subtract(
+                            this.PointToClient(new Point(Cursor.Position.X, Cursor.Position.Y)), 
+                            (Size) gb.Location
+                        )
+                    ); 
+                    if (!(this.Bounds.Contains(this.PointToClient(MousePosition)))) { 
+                        gb.Location = this.PointToClient(new Point(Cursor.Position.X - 50, Cursor.Position.Y - 50));
+                    }
+
+                    Point oldLocation = gb.Location;
+                    gb.Location = this.PointToClient(new Point(Cursor.Position.X - (Cursor.Position.X - oldLocation.X), Cursor.Position.Y - (Cursor.Position.Y - oldLocation.Y)));
+                    MessageBox.Show(gb.Location.ToString());
+
+        gb.Location = this.PointToClient(new Point(Cursor.Position.X - 15, Cursor.Position.Y - 10));
+                };
+
          */
     }
 }
