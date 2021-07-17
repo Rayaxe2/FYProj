@@ -7,14 +7,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Numerics;
 
 namespace FYProj
 {
     public partial class Form1 : Form
     {
-        EventHandler globalEventHolder;
-        int GBNum = 0;
+        EventHandler globalEventHolder; //A variable to globally store an event handeler
+        int GBNum = 0; //An incrmental value added to the names of new groupboxes
+        string interactionMode = "None";
 
         public Form1()
         {
@@ -32,7 +32,7 @@ namespace FYProj
             this.Click -= globalEventHolder;
         }
 
-        //When Button is clicked....
+        //New Table button
         private void button1_Click(object sender, EventArgs e)
         {
             //Creates the schematics for an eventhandler and stores it in the object addTableEvent
@@ -89,6 +89,22 @@ namespace FYProj
             this.Click += globalEventHolder;
         }
 
+        //Add Relationship Button
+        private void button2_Click(object sender, EventArgs e)
+        {
+            //Creates event handler for drawing lines between 2 group boxes
+            EventHandler drawRelationshipEvent = (s, e) => {
+                Graphics surface = CreateGraphics();
+                Pen pen1 = new Pen(Color.Black, 2);
+                surface.DrawLine(pen1, 10, 10, 100, 10);
+            };
+            //makes event handler globally referencable and assigns it to the form click event click 
+            globalEventHolder = drawRelationshipEvent;
+            this.Click += globalEventHolder;
+        }
+
+
+
 
 
         //TEST CODE
@@ -135,6 +151,21 @@ namespace FYProj
             MessageBox.Show(string.Format("{0} was clicked!", control.Name));
         }
 
+
+
+
+
+
+
+
+        private void DrawLineEvent(object sender, PaintEventArgs e, int pointOneX, int pointOneY, int PointTwoX, int PointTwoY) {
+            Pen blackPen = new Pen(Color.Black, 3);
+
+            Point point1 = new Point(pointOneX, pointOneY);
+            Point point2 = new Point(PointTwoX, PointTwoY);
+
+            e.Graphics.DrawLine(blackPen, point1, point2);
+        }
 
 
 
