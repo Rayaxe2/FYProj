@@ -14,7 +14,10 @@ namespace FYProj
     {
         EventHandler globalEventHolder; //A variable to globally store an event handeler
         int GBNum = 0; //An incrmental value added to the names of new groupboxes
-        string interactionMode = "None";
+
+        Point begining, end;
+        bool drawingRel = false;
+        bool startRecorded = false;
 
         public Form1()
         {
@@ -94,9 +97,51 @@ namespace FYProj
         {
             //Creates event handler for drawing lines between 2 group boxes
             EventHandler drawRelationshipEvent = (s, e) => {
+
+                /*
+                MouseEventHandler recStart = new MouseEventHandler( //this.MouseDown
+                    (s, e) => {
+                        if (startRecorded == false)
+                        {
+                            MessageBox.Show(PointToClient(Cursor.Position).ToString());
+                            begining = this.PointToClient(Cursor.Position);
+                            startRecorded = true;
+                        }
+                    }
+                );
+                this.MouseDown += recStart;
+
                 Graphics surface = CreateGraphics();
                 Pen pen1 = new Pen(Color.Black, 2);
-                surface.DrawLine(pen1, 10, 10, 100, 10);
+
+                MouseEventHandler drawPreview = new MouseEventHandler( //this.MouseMove
+                    (s, e) => {
+                        surface.DrawLine(pen1, begining.X, begining.Y, this.PointToClient(Cursor.Position).X, this.PointToClient(Cursor.Position).Y);
+                        surface = CreateGraphics();
+                    }
+                );
+                this.MouseMove += drawPreview;
+
+                MouseEventHandler recEnd = new MouseEventHandler( //this.MouseUp
+                   (s, e) => {
+                       if (startRecorded == true)
+                       {
+                           end = this.PointToClient(Cursor.Position);
+                           startRecorded = false;
+                           this.MouseDown -= recStart;
+                           this.MouseMove -= drawPreview;
+                       }
+                   }
+               );
+                this.MouseUp += recEnd;
+
+
+                surface.DrawLine(pen1, begining.X, begining.Y, end.X, end.Y);
+                //this.MouseDown -= recStart;
+                //this.MouseUp -= recEnd;
+                //this.MouseMove -= drawPreview;
+                */
+
             };
             //makes event handler globally referencable and assigns it to the form click event click 
             globalEventHolder = drawRelationshipEvent;
@@ -107,7 +152,7 @@ namespace FYProj
 
 
 
-        //TEST CODE
+            //TEST CODE
         /*
             Label lbl = new Label();
             lbl.Name = "Label";
@@ -219,5 +264,5 @@ namespace FYProj
             //MessageBox.Show("TEST");
 
          */
-    }
+        }
 }
