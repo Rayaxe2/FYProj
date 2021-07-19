@@ -15,9 +15,12 @@ namespace FYProj
         EventHandler globalEventHolder; //A variable to globally store an event handeler
         int GBNum = 0; //An incrmental value added to the names of new groupboxes
 
-        Point begining, end;
-        bool drawingRel = false;
-        bool startRecorded = false;
+        String interactionMode = "None";
+        GroupBox selectedGroupBox1;
+
+        Graphics surface;
+        List<List<Point>> RelPoints = new List<List<Point>>();
+        Point start, end;
 
         public Form1()
         {
@@ -33,6 +36,20 @@ namespace FYProj
         {
             //If the globalEventHolder eventhandler is associated to the click event for the form, it is removed
             this.Click -= globalEventHolder;
+        }
+
+        private void reDrawForm() {
+            if (surface != null) {
+                surface.Clear(this.BackColor);
+            }
+            surface = CreateGraphics();
+            Pen blackPen = new Pen(Color.Black, 2);
+
+            foreach (List<Point> coord in RelPoints) {
+                surface.DrawLine(blackPen, coord[0].X, coord[0].Y, coord[1].X, coord[1].Y);
+            }
+            
+            //surface.DrawLine(pen1, begining.X, begining.Y, end.X, end.Y);
         }
 
         //New Table button
@@ -62,6 +79,7 @@ namespace FYProj
                     (s, e) => {
                         if(e.Button == MouseButtons.Right) {
                             gb.MouseMove += dragTableEvent;
+                            gb.ForeColor = Color.Red;
                         }
                     }
                 );
@@ -69,17 +87,51 @@ namespace FYProj
                 //Makes groupbox stop following mouse when mouse click is released
                 gb.MouseUp += new MouseEventHandler(
                     (s, e) => {
-                        if(e.Button == MouseButtons.Right) {
+                        if (e.Button == MouseButtons.Right)
+                        {
                             gb.MouseMove -= dragTableEvent;
+                            gb.ForeColor = default;
 
                             //If the groupbox is dragged out of bounds of the client size/form, the movement on it is undone
                             if (gb.Location.X > this.ClientSize.Width || gb.Location.X < 0 || gb.Location.Y > this.ClientSize.Height || gb.Location.Y < 0)
                             {
                                 gb.Location = preDragLocation;
                             }
-                            else {
+                            else
+                            {
                                 preDragLocation = gb.Location;
                             }
+                        }
+                    }
+                );
+
+                //When groupboxes are selected while in the add relationship mode, the colour is changed to indicate that they have been selected
+                gb.Click += new EventHandler(
+                    async (s, e) =>
+                    {
+                        if (interactionMode == "AddRel1")
+                        {
+                            gb.BackColor = Color.Red;
+                            selectedGroupBox1 = gb;
+                            interactionMode = "AddRel2";
+
+                            start = new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2)));
+                        }
+                        else if (interactionMode == "AddRel2")
+                        {
+                            gb.BackColor = Color.Blue;
+                            await Task.Delay(300);
+                            gb.BackColor = default;
+                            selectedGroupBox1.BackColor = default;
+                            interactionMode = "None";
+
+                            end = new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2)));
+                            List<Point> gbLocations = new List<Point>();
+                            gbLocations.AddRange(new Point[] { start, end });
+
+                            RelPoints.Add(gbLocations);
+
+                            reDrawForm();
                         }
                     }
                 );
@@ -95,57 +147,65 @@ namespace FYProj
         //Add Relationship Button
         private void button2_Click(object sender, EventArgs e)
         {
+            //Changes the interactions mode to "AddRel1" so the groupboxes can react to be selected
+            if (interactionMode == "None")
+            {
+                interactionMode = "AddRel1";
+            }
+
             //Creates event handler for drawing lines between 2 group boxes
             EventHandler drawRelationshipEvent = (s, e) => {
-
-                /*
-                MouseEventHandler recStart = new MouseEventHandler( //this.MouseDown
-                    (s, e) => {
-                        if (startRecorded == false)
-                        {
-                            MessageBox.Show(PointToClient(Cursor.Position).ToString());
-                            begining = this.PointToClient(Cursor.Position);
-                            startRecorded = true;
-                        }
-                    }
-                );
-                this.MouseDown += recStart;
-
-                Graphics surface = CreateGraphics();
-                Pen pen1 = new Pen(Color.Black, 2);
-
-                MouseEventHandler drawPreview = new MouseEventHandler( //this.MouseMove
-                    (s, e) => {
-                        surface.DrawLine(pen1, begining.X, begining.Y, this.PointToClient(Cursor.Position).X, this.PointToClient(Cursor.Position).Y);
-                        surface = CreateGraphics();
-                    }
-                );
-                this.MouseMove += drawPreview;
-
-                MouseEventHandler recEnd = new MouseEventHandler( //this.MouseUp
-                   (s, e) => {
-                       if (startRecorded == true)
-                       {
-                           end = this.PointToClient(Cursor.Position);
-                           startRecorded = false;
-                           this.MouseDown -= recStart;
-                           this.MouseMove -= drawPreview;
-                       }
-                   }
-               );
-                this.MouseUp += recEnd;
-
-
-                surface.DrawLine(pen1, begining.X, begining.Y, end.X, end.Y);
-                //this.MouseDown -= recStart;
-                //this.MouseUp -= recEnd;
-                //this.MouseMove -= drawPreview;
-                */
 
             };
             //makes event handler globally referencable and assigns it to the form click event click 
             globalEventHolder = drawRelationshipEvent;
             this.Click += globalEventHolder;
+
+
+
+            /*
+            MouseEventHandler recStart = new MouseEventHandler( //this.MouseDown
+                (s, e) => {
+                    if (startRecorded == false)
+                    {
+                        MessageBox.Show(PointToClient(Cursor.Position).ToString());
+                        begining = this.PointToClient(Cursor.Position);
+                        startRecorded = true;
+                    }
+                }
+            );
+            this.MouseDown += recStart;
+
+            Graphics surface = CreateGraphics();
+            Pen pen1 = new Pen(Color.Black, 2);
+
+            MouseEventHandler drawPreview = new MouseEventHandler( //this.MouseMove
+                (s, e) => {
+                    surface.DrawLine(pen1, begining.X, begining.Y, this.PointToClient(Cursor.Position).X, this.PointToClient(Cursor.Position).Y);
+                    surface = CreateGraphics();
+                }
+            );
+            this.MouseMove += drawPreview;
+
+            MouseEventHandler recEnd = new MouseEventHandler( //this.MouseUp
+               (s, e) => {
+                   if (startRecorded == true)
+                   {
+                       end = this.PointToClient(Cursor.Position);
+                       startRecorded = false;
+                       this.MouseDown -= recStart;
+                       this.MouseMove -= drawPreview;
+                   }
+               }
+           );
+            this.MouseUp += recEnd;
+
+
+            surface.DrawLine(pen1, begining.X, begining.Y, end.X, end.Y);
+            //this.MouseDown -= recStart;
+            //this.MouseUp -= recEnd;
+            //this.MouseMove -= drawPreview;
+            */
         }
 
 
