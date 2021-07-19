@@ -10,6 +10,21 @@ using System.Windows.Forms;
 
 namespace FYProj
 {
+
+    class relationshipPoint {
+        public Point start, end;
+        public GroupBox gb1, gb2;
+        public string relType = "";
+
+        public relationshipPoint(Point s, Point e, GroupBox g1, GroupBox g2, String type) {
+            start = s;
+            end = e;
+            gb1 = g1;
+            gb2 = g2;
+            relType = type;
+        }
+    }
+
     public partial class Form1 : Form
     {
         EventHandler globalEventHolder; //A variable to globally store an event handeler
@@ -19,7 +34,7 @@ namespace FYProj
         GroupBox selectedGroupBox1;
 
         Graphics surface;
-        List<List<Point>> RelPoints = new List<List<Point>>();
+        List<relationshipPoint> RelPoints = new List<relationshipPoint>();
         Point start, end;
 
         public Form1()
@@ -45,11 +60,36 @@ namespace FYProj
             surface = CreateGraphics();
             Pen blackPen = new Pen(Color.Black, 2);
 
-            foreach (List<Point> coord in RelPoints) {
-                surface.DrawLine(blackPen, coord[0].X, coord[0].Y, coord[1].X, coord[1].Y);
+            foreach (relationshipPoint coord in RelPoints) {
+                surface.DrawLine(blackPen, coord.start.X, coord.start.Y, coord.end.X, coord.end.Y);
             }
             
             //surface.DrawLine(pen1, begining.X, begining.Y, end.X, end.Y);
+        }
+
+        private bool isRelEstablished(GroupBox gbOne, GroupBox gbTwo) {
+            foreach (relationshipPoint rel in RelPoints) {
+                if ((rel.gb1 == gbOne || rel.gb1 == gbTwo) && (rel.gb2 == gbOne || rel.gb2 == gbTwo)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void recordTableRelocation(GroupBox gbOne, Point newPoint)
+        {
+            foreach (relationshipPoint rel in RelPoints)
+            {
+                if (rel.gb1 == gbOne)
+                {
+                    rel.start = newPoint;
+                }
+
+                if (rel.gb2 == gbOne)
+                {
+                    rel.end = newPoint;
+                }
+            }
         }
 
         //New Table button
@@ -65,13 +105,14 @@ namespace FYProj
                 gb.AutoSize = true;
                 gb.Text = "Test " + GBNum.ToString();
                 GBNum += 1;
-
                 Point preDragLocation = gb.Location;
 
                 MouseEventHandler dragTableEvent = (s, e) => {
                     //Moves groupbox to mouse location while moving the mouse
                     //(this event handler is added when you click down/hold mouse click on a groupbox and removed when you click up/release mouse click)
                     gb.Location = this.PointToClient(new Point(Cursor.Position.X - 15, Cursor.Position.Y - 10));
+                    recordTableRelocation(gb, new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2))));
+                    reDrawForm();
                 }; 
 
                 //Makes groupbox follow mouse when holding mouse click
@@ -125,13 +166,18 @@ namespace FYProj
                             selectedGroupBox1.BackColor = default;
                             interactionMode = "None";
 
-                            end = new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2)));
-                            List<Point> gbLocations = new List<Point>();
-                            gbLocations.AddRange(new Point[] { start, end });
+                            if (isRelEstablished(gb, selectedGroupBox1) == true) {
+                                MessageBox.Show("There is already a relationship between these two tables!");
+                            }
+                            else
+                            {
+                                end = new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2)));
+                                relationshipPoint gbLocations = new relationshipPoint(start, end, selectedGroupBox1, gb, "Nothing");
 
-                            RelPoints.Add(gbLocations);
+                                RelPoints.Add(gbLocations);
 
-                            reDrawForm();
+                                reDrawForm();
+                            }
                         }
                     }
                 );
