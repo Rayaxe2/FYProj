@@ -7,24 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Drawing.Drawing2D;
 
 namespace FYProj
 {
-
-    class relationshipPoint {
-        public Point start, end;
-        public GroupBox gb1, gb2;
-        public string relType = "";
-
-        public relationshipPoint(Point s, Point e, GroupBox g1, GroupBox g2, String type) {
-            start = s;
-            end = e;
-            gb1 = g1;
-            gb2 = g2;
-            relType = type;
-        }
-    }
-
     public partial class Form1 : Form
     {
         EventHandler globalEventHolder; //A variable to globally store an event handeler
@@ -53,18 +39,72 @@ namespace FYProj
             this.Click -= globalEventHolder;
         }
 
+        //http://csharphelper.com/blog/2015/05/rotate-around-a-point-other-than-the-origin-in-c/
+        Matrix rotateLine(Point anchor, int angle) {
+            Matrix rotationResult = new Matrix();
+            rotationResult.RotateAt(angle, anchor);
+            return rotationResult;
+        }
+
         private void reDrawForm() {
             if (surface != null) {
                 surface.Clear(this.BackColor);
             }
             surface = CreateGraphics();
             Pen blackPen = new Pen(Color.Black, 2);
+            Pen redPen = new Pen(Color.Red, 2);
 
             foreach (relationshipPoint coord in RelPoints) {
                 surface.DrawLine(blackPen, coord.start.X, coord.start.Y, coord.end.X, coord.end.Y);
+                surface.DrawLine(redPen, coord.start.X + 50, coord.start.Y + 50, coord.end.X, coord.end.Y);
+                surface.DrawLine(redPen, coord.start.X - 50, coord.start.Y - 50, coord.end.X, coord.end.Y);
+
+                double angle = Math.Abs(((Math.Atan2((coord.end.X - coord.start.X), (coord.end.Y - coord.start.Y)) * 180 / Math.PI) + 180) - 360);
+                //MessageBox.Show(angle.ToString());
             }
-            
-            //surface.DrawLine(pen1, begining.X, begining.Y, end.X, end.Y);
+
+            Graphics foot = CreateGraphics();
+            Pen bluePen = new Pen(Color.Blue, 2);
+            foot.DrawLine(bluePen, 10, 100, 40, 100);
+            foot.DrawLine(bluePen, 10, 100, 40, 80);
+            foot.DrawLine(bluePen, 10, 100, 40, 120);
+
+            double t;
+            int pointAx, pointAy, pointBx, pointBy;
+            t = 0.7;
+            pointAx = 300;
+            pointAy = 50;
+            pointBx = 500;
+            pointBy = 300;
+
+            foot.DrawLine(redPen, pointAx, pointAy, pointBx, pointBy);
+
+            //(Ax+t(Bx−Ax),Ay+t(By−Ay)) - shortens line by the factor t and maintians angle
+            //https://math.stackexchange.com/questions/3058210/how-to-shorten-a-line-but-maintain-its-angle
+            int newX = Convert.ToInt32(pointAx + t * (pointBx - pointAx));
+            int newY = Convert.ToInt32(pointAy + t * (pointBy - pointAy));
+
+            //foot.DrawLine(bluePen, newX, newY, pointBx - 50, pointBy - 50);
+            //foot.DrawLine(bluePen, newX, newY, pointBx + 50, pointBy + 50);
+
+            foot.Transform = rotateLine(new Point(newX, newY), 90);
+            foot.DrawLine(bluePen, newX, newY, pointBx, pointBy);
+        }
+
+        private void reDrawForm(int offsetOne, int offsetTwo)
+        {
+            if (surface != null)
+            {
+                surface.Clear(this.BackColor);
+            }
+            surface = CreateGraphics();
+            Pen blackPen = new Pen(Color.Black, 2);
+
+            foreach (relationshipPoint coord in RelPoints)
+            {
+                surface.DrawLine(blackPen, coord.start.X, coord.start.Y, coord.end.X, coord.end.Y);
+                surface.DrawLine(blackPen, coord.start.X + 50, coord.start.Y + 50, 200, 200);
+            }
         }
 
         private bool isRelEstablished(GroupBox gbOne, GroupBox gbTwo) {
