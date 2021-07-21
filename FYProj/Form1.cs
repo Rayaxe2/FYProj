@@ -186,6 +186,9 @@ namespace FYProj
             Graphics lineSymbol = CreateGraphics();
             Point[] anchors = calcSymbolPostions(lineStart, LineEnd, 130);
             drawMultiplicity("manyToOne", anchors[0], anchors[1], anchors[2], anchors[3], lineSymbol);
+
+            anchors = calcSymbolPostions(lineStart, LineEnd, 150);
+            drawParticipation("optional-manditory", anchors[0], anchors[1], anchors[2], anchors[3], lineSymbol); //optional-optional
         }
 
         //http://csharphelper.com/blog/2015/05/rotate-around-a-point-other-than-the-origin-in-c/
@@ -220,15 +223,17 @@ namespace FYProj
         //https://vertabelo.com/blog/crow-s-foot-notation/
         private void drawMultiplicity(String multiplicity, Point startAnchor, Point endAnchor, Point startLanding, Point endLanding, Graphics lineSymbol) {
             Point shrunkLandings;
+            Point shrunkAnchor;
 
             switch (multiplicity) {
                 case "oneToMany":
-                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.15);
+                    shrunkAnchor = shrinkStartPoint(startLanding, startAnchor, 0.9);
+                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.23);
 
-                    lineSymbol.Transform = rotateLine(startAnchor, 90);
-                    lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
-                    lineSymbol.Transform = rotateLine(startAnchor, 270);
-                    lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, startAnchor.X, startAnchor.Y);
+                    lineSymbol.Transform = rotateLine(shrunkAnchor, 90);
+                    lineSymbol.DrawLine(redPen, shrunkAnchor.X, shrunkAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
+                    lineSymbol.Transform = rotateLine(shrunkAnchor, 270);
+                    lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, shrunkAnchor.X, shrunkAnchor.Y);
 
                     lineSymbol.Transform = rotateLine(endAnchor, 0);
                     lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, endLanding.X, endLanding.Y);
@@ -239,19 +244,21 @@ namespace FYProj
                     break;
 
                 case "oneToOne":
-                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.15);
+                    shrunkAnchor = shrinkStartPoint(startLanding, startAnchor, 0.9);
+                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.23);
 
-                    lineSymbol.Transform = rotateLine(startAnchor, 90);
-                    lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
-                    lineSymbol.Transform = rotateLine(startAnchor, 270);
-                    lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, startAnchor.X, startAnchor.Y);
+                    lineSymbol.Transform = rotateLine(shrunkAnchor, 90);
+                    lineSymbol.DrawLine(redPen, shrunkAnchor.X, shrunkAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
+                    lineSymbol.Transform = rotateLine(shrunkAnchor, 270);
+                    lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, shrunkAnchor.X, shrunkAnchor.Y);
 
-                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.15);
+                    shrunkAnchor = shrinkStartPoint(endLanding, endAnchor, 0.9);
+                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.23);
 
-                    lineSymbol.Transform = rotateLine(endAnchor, 90);
-                    lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
-                    lineSymbol.Transform = rotateLine(endAnchor, 270);
-                    lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, endAnchor.X, endAnchor.Y);
+                    lineSymbol.Transform = rotateLine(shrunkAnchor, 90);
+                    lineSymbol.DrawLine(redPen, shrunkAnchor.X, shrunkAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
+                    lineSymbol.Transform = rotateLine(shrunkAnchor, 270);
+                    lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, shrunkAnchor.X, shrunkAnchor.Y);
                     break;
 
                 case "manyToOne":
@@ -261,12 +268,13 @@ namespace FYProj
                     lineSymbol.Transform = rotateLine(startAnchor, 340);
                     lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
 
-                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.15);
+                    shrunkAnchor = shrinkStartPoint(endLanding, endAnchor, 0.9);
+                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.23);
 
-                    lineSymbol.Transform = rotateLine(endAnchor, 90);
-                    lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
-                    lineSymbol.Transform = rotateLine(endAnchor, 270);
-                    lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, endAnchor.X, endAnchor.Y);
+                    lineSymbol.Transform = rotateLine(shrunkAnchor, 90);
+                    lineSymbol.DrawLine(redPen, shrunkAnchor.X, shrunkAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
+                    lineSymbol.Transform = rotateLine(shrunkAnchor, 270);
+                    lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, shrunkAnchor.X, shrunkAnchor.Y);
                     break;
 
                 case "manyToMany":
@@ -290,18 +298,75 @@ namespace FYProj
             }
         }
 
-        private void drawParticipation(String particupation)
+        private void drawParticipation(String participation, Point startAnchor, Point endAnchor, Point startLanding, Point endLanding, Graphics lineSymbol)
         {
-            switch (particupation)
+            Point shrunkLandings;
+            double lineAngle;
+            Rectangle circleBounds;
+
+            switch (participation)
             {
                 case "optional-optional":
+                    lineAngle = Math.Abs(((Math.Atan2((startAnchor.X - startLanding.X), (startAnchor.Y - startLanding.Y)) * 180 / Math.PI) + 180) - 360);
+                    lineSymbol.Transform = rotateLine(startAnchor, (int) lineAngle + 45);
+                    circleBounds = new Rectangle(startAnchor, new Size(15, 15));;
+                    lineSymbol.DrawEllipse(redPen, circleBounds);
+                    
+                    lineAngle = Math.Abs(((Math.Atan2((endAnchor.X - endLanding.X), (endAnchor.Y - endLanding.Y)) * 180 / Math.PI) + 180) - 360);
+                    lineSymbol.Transform = rotateLine(endAnchor, (int)lineAngle + 45);
+                    circleBounds = new Rectangle(endAnchor, new Size(15, 15));
+                    //lineSymbol.DrawRectangle(redPen, circleBounds);
+                    lineSymbol.DrawEllipse(redPen, circleBounds);
                     break;
-                case "maditory-optional":
+
+                case "manditory-optional":
+                    lineAngle = Math.Abs(((Math.Atan2((endAnchor.X - endLanding.X), (endAnchor.Y - endLanding.Y)) * 180 / Math.PI) + 180) - 360);
+                    lineSymbol.Transform = rotateLine(endAnchor, (int)lineAngle + 45);
+                    circleBounds = new Rectangle(endAnchor, new Size(15, 15));
+                    lineSymbol.DrawEllipse(redPen, circleBounds);
+
+                    startAnchor = shrinkStartPoint(startLanding, startAnchor, 0.83);
+                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.14);
+
+                    lineSymbol.Transform = rotateLine(startAnchor, 90);
+                    lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
+                    lineSymbol.Transform = rotateLine(startAnchor, 270);
+                    lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, startAnchor.X, startAnchor.Y);
                     break;
+
                 case "optional-manditory":
+                    lineAngle = Math.Abs(((Math.Atan2((startAnchor.X - startLanding.X), (startAnchor.Y - startLanding.Y)) * 180 / Math.PI) + 180) - 360);
+                    lineSymbol.Transform = rotateLine(startAnchor, (int)lineAngle + 45);
+                    circleBounds = new Rectangle(startAnchor, new Size(15, 15)); ;
+                    lineSymbol.DrawEllipse(redPen, circleBounds);
+
+                    endAnchor = shrinkStartPoint(endLanding, endAnchor, 0.83);
+                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.14);
+
+                    lineSymbol.Transform = rotateLine(endAnchor, 90);
+                    lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
+                    lineSymbol.Transform = rotateLine(endAnchor, 270);
+                    lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, endAnchor.X, endAnchor.Y);
                     break;
+
                 case "manditory-manditory":
+                    startAnchor = shrinkStartPoint(startLanding, startAnchor, 0.83);
+                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.14);
+
+                    lineSymbol.Transform = rotateLine(startAnchor, 90);
+                    lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
+                    lineSymbol.Transform = rotateLine(startAnchor, 270);
+                    lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, startAnchor.X, startAnchor.Y);
+
+                    endAnchor = shrinkStartPoint(endLanding, endAnchor, 0.83);
+                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.14);
+
+                    lineSymbol.Transform = rotateLine(endAnchor, 90);
+                    lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
+                    lineSymbol.Transform = rotateLine(endAnchor, 270);
+                    lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, endAnchor.X, endAnchor.Y);
                     break;
+
                 default:
                     break;
             }
