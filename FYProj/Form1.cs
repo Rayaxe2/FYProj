@@ -19,7 +19,7 @@ namespace FYProj
         String interactionMode = "None";
         GroupBox selectedGroupBox1;
 
-        Graphics surface;
+        Graphics formCanvas;
         Pen blackPen = new Pen(Color.Black, 2);
         Pen bluePen = new Pen(Color.Blue, 2);
         Pen redPen = new Pen(Color.Red, 2);
@@ -41,76 +41,6 @@ namespace FYProj
         {
             //If the globalEventHolder eventhandler is associated to the click event for the form, it is removed
             this.Click -= globalEventHolder;
-        }
-
-        //http://csharphelper.com/blog/2015/05/rotate-around-a-point-other-than-the-origin-in-c/
-        private Matrix rotateLine(Point anchor, int angle) {
-            Matrix rotationResult = new Matrix();
-            rotationResult.RotateAt(angle, anchor);
-            return rotationResult;
-        }
-
-        private Point shrunkLineStartPoint(Point pointOne, Point pointTwo, double shrinkFactor)
-        {
-            return new Point(
-                Convert.ToInt32(pointOne.X + shrinkFactor * (pointTwo.X - pointOne.X)),
-                Convert.ToInt32(pointOne.Y + shrinkFactor * (pointTwo.Y - pointOne.Y))
-            );
-        }
-        
-        
-
-        private void reDrawForm() {
-            if (surface != null) {
-                surface.Clear(this.BackColor);
-            }
-            surface = CreateGraphics();
-            Pen blackPen = new Pen(Color.Black, 2);
-            Pen redPen = new Pen(Color.Red, 2);
-
-            foreach (relationshipPoint coord in RelPoints) {
-                surface.DrawLine(blackPen, coord.start.X, coord.start.Y, coord.end.X, coord.end.Y);
-
-                Graphics lineSymbol = CreateGraphics();
-                int lineLength = (int)Math.Sqrt((Math.Pow((coord.start.X - coord.end.X), 2) + Math.Pow((coord.start.Y - coord.end.Y), 2)));
-                int shrinkTarget = 130;
-                double shrinkFactor = 1 - ((double) shrinkTarget / (double) lineLength);
-
-                Point anchorPoint = shrunkLineStartPoint(coord.start, coord.end, shrinkFactor);
-                Point shrunkEndSymbolEnds = shrunkLineStartPoint(coord.end, anchorPoint, 0.3);
-
-                lineSymbol.Transform = rotateLine(anchorPoint, 20);
-                lineSymbol.DrawLine(redPen, anchorPoint.X, anchorPoint.Y, shrunkEndSymbolEnds.X, shrunkEndSymbolEnds.Y);
-                lineSymbol.Transform = rotateLine(anchorPoint, 340);
-                lineSymbol.DrawLine(redPen, anchorPoint.X, anchorPoint.Y, shrunkEndSymbolEnds.X, shrunkEndSymbolEnds.Y);
-            }
-
-            
-        }
-
-        private bool isRelEstablished(GroupBox gbOne, GroupBox gbTwo) {
-            foreach (relationshipPoint rel in RelPoints) {
-                if ((rel.gb1 == gbOne || rel.gb1 == gbTwo) && (rel.gb2 == gbOne || rel.gb2 == gbTwo)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private void recordTableRelocation(GroupBox gbOne, Point newPoint)
-        {
-            foreach (relationshipPoint rel in RelPoints)
-            {
-                if (rel.gb1 == gbOne)
-                {
-                    rel.start = newPoint;
-                }
-
-                if (rel.gb2 == gbOne)
-                {
-                    rel.end = newPoint;
-                }
-            }
         }
 
         //New Table button
@@ -231,6 +161,148 @@ namespace FYProj
 
 
 
+        }
+
+        //HELPER FUNCTIONS
+        //http://csharphelper.com/blog/2015/05/rotate-around-a-point-other-than-the-origin-in-c/
+        private Matrix rotateLine(Point anchor, int angle)
+        {
+            Matrix rotationResult = new Matrix();
+            rotationResult.RotateAt(angle, anchor);
+            return rotationResult;
+        }
+
+        private Point shrunkLineStartPoint(Point pointOne, Point pointTwo, double shrinkFactor)
+        {
+            return new Point(
+                Convert.ToInt32(pointOne.X + shrinkFactor * (pointTwo.X - pointOne.X)),
+                Convert.ToInt32(pointOne.Y + shrinkFactor * (pointTwo.Y - pointOne.Y))
+            );
+        }
+
+
+
+        private void reDrawForm()
+        {
+            if (formCanvas != null)
+            {
+                formCanvas.Clear(this.BackColor);
+            }
+            formCanvas = CreateGraphics();
+            Pen blackPen = new Pen(Color.Black, 2);
+            Pen redPen = new Pen(Color.Red, 2);
+
+            foreach (relationshipPoint coord in RelPoints)
+            {
+                formCanvas.DrawLine(blackPen, coord.start.X, coord.start.Y, coord.end.X, coord.end.Y);
+                drawLineSymbols(coord.start, coord.end);
+
+                //Graphics lineSymbol = CreateGraphics();
+                //int lineLength = (int)Math.Sqrt((Math.Pow((coord.start.X - coord.end.X), 2) + Math.Pow((coord.start.Y - coord.end.Y), 2)));
+                //int shrinkTarget = 130;
+                //double shrinkFactor = 1 - ((double)shrinkTarget / (double)lineLength);
+
+                //Point anchorPoint = shrunkLineStartPoint(coord.start, coord.end, shrinkFactor);
+                //Point shrunkEndSymbolEnds = shrunkLineStartPoint(coord.end, anchorPoint, 0.3);
+
+                //lineSymbol.Transform = rotateLine(anchorPoint, 20);
+                //lineSymbol.DrawLine(redPen, anchorPoint.X, anchorPoint.Y, shrunkEndSymbolEnds.X, shrunkEndSymbolEnds.Y);
+                //lineSymbol.Transform = rotateLine(anchorPoint, 340);
+                //lineSymbol.DrawLine(redPen, anchorPoint.X, anchorPoint.Y, shrunkEndSymbolEnds.X, shrunkEndSymbolEnds.Y);
+            }
+        }
+
+        private void drawLineSymbols(Point lineStart, Point LineEnd) {
+            Graphics lineSymbol = CreateGraphics();
+            Point[] anchors = calcSymbolPostions(lineStart, LineEnd, 130);
+            drawMultiplicity("manyToMany", anchors[0], anchors[1], anchors[2], anchors[3], lineSymbol);
+        }
+
+        private Point[] calcSymbolPostions(Point lineStart, Point lineEnd, int shrinkTarget) {
+            int lineLength = (int)Math.Sqrt((Math.Pow((lineStart.X - lineEnd.X), 2) + Math.Pow((lineStart.Y - lineEnd.Y), 2)));
+            double shrinkFactor = 1 - ((double)shrinkTarget / (double)lineLength);
+
+            Point anchorPointOne = shrunkLineStartPoint(lineStart, lineEnd, shrinkFactor);
+            Point anchorPointTwo = shrunkLineStartPoint(lineEnd, lineStart, shrinkFactor);
+
+            Point landingPointOne = shrunkLineStartPoint(lineEnd, anchorPointOne, 0.3);
+            Point landingPointTwo = shrunkLineStartPoint(lineStart, anchorPointTwo, 0.3);
+
+            return new Point[] { anchorPointOne, anchorPointTwo, landingPointOne, landingPointTwo };
+        }
+
+        //https://vertabelo.com/blog/crow-s-foot-notation/
+        private void drawMultiplicity(String multiplicity, Point startAnchor, Point endAnchor, Point startLanding, Point endLanding, Graphics lineSymbol) {
+            switch (multiplicity) {
+                case "oneToMany":
+                    break;
+                case "oneToOne":
+                    break;
+                case "manyToOne":
+                    break;
+                case "manyToMany":
+                    lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
+                    lineSymbol.Transform = rotateLine(startAnchor, 20);
+                    lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
+                    lineSymbol.Transform = rotateLine(startAnchor, 340);
+                    lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
+
+
+                    lineSymbol.Transform = rotateLine(endAnchor, 0);
+                    lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, endLanding.X, endLanding.Y);
+                    lineSymbol.Transform = rotateLine(endAnchor, 20);
+                    lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, endLanding.X, endLanding.Y);
+                    lineSymbol.Transform = rotateLine(endAnchor, 340);
+                    lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, endLanding.X, endLanding.Y);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void drawParticipation(String particupation)
+        {
+            switch (particupation)
+            {
+                case "optional-optional":
+                    break;
+                case "maditory-optional":
+                    break;
+                case "optional-manditory":
+                    break;
+                case "manditory-manditory":
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private bool isRelEstablished(GroupBox gbOne, GroupBox gbTwo)
+        {
+            foreach (relationshipPoint rel in RelPoints)
+            {
+                if ((rel.gb1 == gbOne || rel.gb1 == gbTwo) && (rel.gb2 == gbOne || rel.gb2 == gbTwo))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void recordTableRelocation(GroupBox gbOne, Point newPoint)
+        {
+            foreach (relationshipPoint rel in RelPoints)
+            {
+                if (rel.gb1 == gbOne)
+                {
+                    rel.start = newPoint;
+                }
+
+                if (rel.gb2 == gbOne)
+                {
+                    rel.end = newPoint;
+                }
+            }
         }
 
     }
