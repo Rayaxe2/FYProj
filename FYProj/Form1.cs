@@ -164,24 +164,6 @@ namespace FYProj
         }
 
         //HELPER FUNCTIONS
-        //http://csharphelper.com/blog/2015/05/rotate-around-a-point-other-than-the-origin-in-c/
-        private Matrix rotateLine(Point anchor, int angle)
-        {
-            Matrix rotationResult = new Matrix();
-            rotationResult.RotateAt(angle, anchor);
-            return rotationResult;
-        }
-
-        private Point shrunkLineStartPoint(Point pointOne, Point pointTwo, double shrinkFactor)
-        {
-            return new Point(
-                Convert.ToInt32(pointOne.X + shrinkFactor * (pointTwo.X - pointOne.X)),
-                Convert.ToInt32(pointOne.Y + shrinkFactor * (pointTwo.Y - pointOne.Y))
-            );
-        }
-
-
-
         private void reDrawForm()
         {
             if (formCanvas != null)
@@ -196,50 +178,97 @@ namespace FYProj
             {
                 formCanvas.DrawLine(blackPen, coord.start.X, coord.start.Y, coord.end.X, coord.end.Y);
                 drawLineSymbols(coord.start, coord.end);
-
-                //Graphics lineSymbol = CreateGraphics();
-                //int lineLength = (int)Math.Sqrt((Math.Pow((coord.start.X - coord.end.X), 2) + Math.Pow((coord.start.Y - coord.end.Y), 2)));
-                //int shrinkTarget = 130;
-                //double shrinkFactor = 1 - ((double)shrinkTarget / (double)lineLength);
-
-                //Point anchorPoint = shrunkLineStartPoint(coord.start, coord.end, shrinkFactor);
-                //Point shrunkEndSymbolEnds = shrunkLineStartPoint(coord.end, anchorPoint, 0.3);
-
-                //lineSymbol.Transform = rotateLine(anchorPoint, 20);
-                //lineSymbol.DrawLine(redPen, anchorPoint.X, anchorPoint.Y, shrunkEndSymbolEnds.X, shrunkEndSymbolEnds.Y);
-                //lineSymbol.Transform = rotateLine(anchorPoint, 340);
-                //lineSymbol.DrawLine(redPen, anchorPoint.X, anchorPoint.Y, shrunkEndSymbolEnds.X, shrunkEndSymbolEnds.Y);
             }
         }
 
-        private void drawLineSymbols(Point lineStart, Point LineEnd) {
+        private void drawLineSymbols(Point lineStart, Point LineEnd)
+        {
             Graphics lineSymbol = CreateGraphics();
             Point[] anchors = calcSymbolPostions(lineStart, LineEnd, 130);
-            drawMultiplicity("manyToMany", anchors[0], anchors[1], anchors[2], anchors[3], lineSymbol);
+            drawMultiplicity("manyToOne", anchors[0], anchors[1], anchors[2], anchors[3], lineSymbol);
+        }
+
+        //http://csharphelper.com/blog/2015/05/rotate-around-a-point-other-than-the-origin-in-c/
+        private Matrix rotateLine(Point anchor, int angle)
+        {
+            Matrix rotationResult = new Matrix();
+            rotationResult.RotateAt(angle, anchor);
+            return rotationResult;
+        }
+
+        private Point shrinkStartPoint(Point pointOne, Point pointTwo, double shrinkFactor)
+        {
+            return new Point(
+                Convert.ToInt32(pointOne.X + shrinkFactor * (pointTwo.X - pointOne.X)),
+                Convert.ToInt32(pointOne.Y + shrinkFactor * (pointTwo.Y - pointOne.Y))
+            );
         }
 
         private Point[] calcSymbolPostions(Point lineStart, Point lineEnd, int shrinkTarget) {
             int lineLength = (int)Math.Sqrt((Math.Pow((lineStart.X - lineEnd.X), 2) + Math.Pow((lineStart.Y - lineEnd.Y), 2)));
             double shrinkFactor = 1 - ((double)shrinkTarget / (double)lineLength);
 
-            Point anchorPointOne = shrunkLineStartPoint(lineStart, lineEnd, shrinkFactor);
-            Point anchorPointTwo = shrunkLineStartPoint(lineEnd, lineStart, shrinkFactor);
+            Point anchorPointOne = shrinkStartPoint(lineStart, lineEnd, shrinkFactor);
+            Point anchorPointTwo = shrinkStartPoint(lineEnd, lineStart, shrinkFactor);
 
-            Point landingPointOne = shrunkLineStartPoint(lineEnd, anchorPointOne, 0.3);
-            Point landingPointTwo = shrunkLineStartPoint(lineStart, anchorPointTwo, 0.3);
+            Point landingPointOne = shrinkStartPoint(lineEnd, anchorPointOne, 0.3);
+            Point landingPointTwo = shrinkStartPoint(lineStart, anchorPointTwo, 0.3);
 
             return new Point[] { anchorPointOne, anchorPointTwo, landingPointOne, landingPointTwo };
         }
 
         //https://vertabelo.com/blog/crow-s-foot-notation/
         private void drawMultiplicity(String multiplicity, Point startAnchor, Point endAnchor, Point startLanding, Point endLanding, Graphics lineSymbol) {
+            Point shrunkLandings;
+
             switch (multiplicity) {
                 case "oneToMany":
+                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.15);
+
+                    lineSymbol.Transform = rotateLine(startAnchor, 90);
+                    lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
+                    lineSymbol.Transform = rotateLine(startAnchor, 270);
+                    lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, startAnchor.X, startAnchor.Y);
+
+                    lineSymbol.Transform = rotateLine(endAnchor, 0);
+                    lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, endLanding.X, endLanding.Y);
+                    lineSymbol.Transform = rotateLine(endAnchor, 20);
+                    lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, endLanding.X, endLanding.Y);
+                    lineSymbol.Transform = rotateLine(endAnchor, 340);
+                    lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, endLanding.X, endLanding.Y);
                     break;
+
                 case "oneToOne":
+                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.15);
+
+                    lineSymbol.Transform = rotateLine(startAnchor, 90);
+                    lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
+                    lineSymbol.Transform = rotateLine(startAnchor, 270);
+                    lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, startAnchor.X, startAnchor.Y);
+
+                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.15);
+
+                    lineSymbol.Transform = rotateLine(endAnchor, 90);
+                    lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
+                    lineSymbol.Transform = rotateLine(endAnchor, 270);
+                    lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, endAnchor.X, endAnchor.Y);
                     break;
+
                 case "manyToOne":
+                    lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
+                    lineSymbol.Transform = rotateLine(startAnchor, 20);
+                    lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
+                    lineSymbol.Transform = rotateLine(startAnchor, 340);
+                    lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
+
+                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.15);
+
+                    lineSymbol.Transform = rotateLine(endAnchor, 90);
+                    lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
+                    lineSymbol.Transform = rotateLine(endAnchor, 270);
+                    lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, endAnchor.X, endAnchor.Y);
                     break;
+
                 case "manyToMany":
                     lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
                     lineSymbol.Transform = rotateLine(startAnchor, 20);
@@ -255,6 +284,7 @@ namespace FYProj
                     lineSymbol.Transform = rotateLine(endAnchor, 340);
                     lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, endLanding.X, endLanding.Y);
                     break;
+
                 default:
                     break;
             }
