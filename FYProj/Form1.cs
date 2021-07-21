@@ -133,6 +133,11 @@ namespace FYProj
                             if (isRelEstablished(gb, selectedGroupBox1) == true) {
                                 MessageBox.Show("There is already a relationship between these two tables!");
                             }
+                            //Add support later
+                            else if(gb == selectedGroupBox1)
+                            {
+                                MessageBox.Show("Self relationships are not supported yet!");
+                            }
                             //If the relationship is new/unrecorded, it is recorded in the list of "relationshipPoints" (RelPoints)
                             else
                             {
@@ -234,7 +239,7 @@ namespace FYProj
         private Point[] calcSymbolPostions(Point lineStart, Point lineEnd, int shrinkTarget) {
             int lineLength = (int)Math.Sqrt((Math.Pow((lineStart.X - lineEnd.X), 2) + Math.Pow((lineStart.Y - lineEnd.Y), 2)));
             double shrinkFactor = 1 - ((double)shrinkTarget / (double)lineLength); //Used to find a point that would shrink the line to a certain pixel size (shrinkTarget)
-#
+
             //The anchors will be the start point of the symbols
             Point anchorPointOne = shrinkStartPoint(lineStart, lineEnd, shrinkFactor);
             Point anchorPointTwo = shrinkStartPoint(lineEnd, lineStart, shrinkFactor);
