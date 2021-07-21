@@ -13,19 +13,22 @@ namespace FYProj
 {
     public partial class Form1 : Form
     {
-        EventHandler globalEventHolder; //A variable to globally store an event handeler
+        EventHandler globalEventHolder; //Stores a globally recognised event 
         int GBNum = 0; //An incrmental value added to the names of new groupboxes
 
-        String interactionMode = "None";
-        GroupBox selectedGroupBox1;
+        String interactionMode = "None"; //Indicates the active mode during GUI interactions
+        GroupBox selectedGroupBox1; //Globally holds a reference to an assigned groupbox control/object
 
-        Graphics formCanvas;
+        Graphics formCanvas; //Used to draw relationship lines on the form
+        //Different coloured pens used for graphics
         Pen blackPen = new Pen(Color.Black, 2);
         Pen bluePen = new Pen(Color.Blue, 2);
         Pen redPen = new Pen(Color.Red, 2);
 
+        //Stores the coordinates of groupboxes which hold tables that have been given a relationship
+        //This is used to determine where to redraw the lines and symbols between tables/groupboxes with relationships when they are moved in on the form
         List<relationshipPoint> RelPoints = new List<relationshipPoint>();
-        Point start, end;
+        Point start, end; //Globally stores a starting point and and ending point
 
         public Form1()
         {
@@ -37,27 +40,29 @@ namespace FYProj
 
         }
 
+        //Form click event
         private void Form1_Click(object sender, EventArgs e)
         {
-            //If the globalEventHolder eventhandler is associated to the click event for the form, it is removed
+            //If the globalEventHolder eventhandler is associated to the click event for the form, it is removed when the form is clicked
             this.Click -= globalEventHolder;
         }
 
-        //New Table button
+        //New Table button - button1 click event
         private void button1_Click(object sender, EventArgs e)
         {
-            //Creates the schematics for an eventhandler and stores it in the object addTableEvent
+            //Creates the schematics for an eventhandler which adds a new groupbox to a click location on a form.
             EventHandler addTableEvent = (s, e) => {
-                //Creates new groupbox compoment for the form
+                //Creates a new groupbox compoment for the form
                 GroupBox gb = new GroupBox();
-                gb.Name = "Test " + GBNum.ToString();
+                gb.Name = "Test " + GBNum.ToString(); //GBNum adds a unique numerical value to the name
                 //Places the groupbox on the form relative to where the mouse is when clicked on the form
                 gb.Location = this.PointToClient(new Point(Cursor.Position.X, Cursor.Position.Y));
-                gb.AutoSize = true;
+                gb.AutoSize = true; //The Groupbox resized automatically
                 gb.Text = "Test " + GBNum.ToString();
-                GBNum += 1;
-                Point preDragLocation = gb.Location;
+                GBNum += 1; //This is incremented so the next groupbox has a unique suffix to add to it's name
+                Point preDragLocation = gb.Location; //Holds the original location the groupbox was placed in
 
+                //This eventhandler is later added to the newly created groupbox to make it dragable with a right click input
                 MouseEventHandler dragTableEvent = (s, e) => {
                     //Moves groupbox to mouse location while moving the mouse
                     //(this event handler is added when you click down/hold mouse click on a groupbox and removed when you click up/release mouse click)
@@ -69,9 +74,11 @@ namespace FYProj
                 //Makes groupbox follow mouse when holding mouse click
                 gb.MouseDown += new MouseEventHandler(
                     (s, e) => {
-                        if(e.Button == MouseButtons.Right) {
-                            gb.MouseMove += dragTableEvent;
-                            gb.ForeColor = Color.Red;
+                        //Adds the aforemention event handler to mouse move event so, while the groupbox is being dragged with right clicked...
+                        //The user can see the group box move with the mosue and updates being made to the for's appearance
+                        if (e.Button == MouseButtons.Right) {
+                            gb.MouseMove += dragTableEvent; 
+                            gb.ForeColor = Color.Red; //Changes the colour of the groupbox's title while it is being right clicked/moved
                         }
                     }
                 );
@@ -79,12 +86,14 @@ namespace FYProj
                 //Makes groupbox stop following mouse when mouse click is released
                 gb.MouseUp += new MouseEventHandler(
                     (s, e) => {
+                        //Removes aforementioned event handler once the right click button has been released so the groupbox doesn't follow the mouse
                         if (e.Button == MouseButtons.Right)
                         {
-                            gb.MouseMove -= dragTableEvent;
-                            gb.ForeColor = default;
+                            gb.MouseMove -= dragTableEvent; 
+                            gb.ForeColor = default; //sets the colour of the group box title to it's default colour
 
                             //If the groupbox is dragged out of bounds of the client size/form, the movement on it is undone
+                            //This prevents the user from placing the groupbox out of view
                             if (gb.Location.X > this.ClientSize.Width || gb.Location.X < 0 || gb.Location.Y > this.ClientSize.Height || gb.Location.Y < 0)
                             {
                                 gb.Location = preDragLocation;
@@ -98,28 +107,33 @@ namespace FYProj
                 );
 
                 //When groupboxes are selected while in the add relationship mode, the colour is changed to indicate that they have been selected
+                //The mode interaction mode is changed to reflect the state of the interaction and selected groupboxes and their locations are recorded
                 gb.Click += new EventHandler(
-                    async (s, e) =>
+                    async (s, e) => //aysnc lamda function used so when the second groupbox is selected, it's background colour could stay blue for a while (via a task delay) before setting it back to it's default colour and recording details
                     {
+                        //In the "AddRel1" interaction mode, the first selected groupbox's location is recorded and the mode is set to "AddRel2"
                         if (interactionMode == "AddRel1")
                         {
-                            gb.BackColor = Color.Red;
-                            selectedGroupBox1 = gb;
+                            gb.BackColor = Color.Red; //The first selected groupbox has it's background colour temporarily set to red
+                            selectedGroupBox1 = gb; //The selected groupbox is globally recorded to remember later
                             interactionMode = "AddRel2";
 
-                            start = new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2)));
+                            start = new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2))); //The center of the groupbox is stored as it's location
                         }
+                        //In the "AddRel2" interaction mode, the second selected groupbox's location is recorded and the mode is set back to "None"
                         else if (interactionMode == "AddRel2")
                         {
-                            gb.BackColor = Color.Blue;
-                            await Task.Delay(300);
+                            gb.BackColor = Color.Blue; //Temporarilily makes the background of the selected groupbox blue
+                            await Task.Delay(300); //Pauses the execution for a while before setting the groupbox's background colour back to it's default
                             gb.BackColor = default;
                             selectedGroupBox1.BackColor = default;
                             interactionMode = "None";
 
+                            //Prevents the establishment of a relationship tables that already have a relationship
                             if (isRelEstablished(gb, selectedGroupBox1) == true) {
                                 MessageBox.Show("There is already a relationship between these two tables!");
                             }
+                            //If the relationship is new/unrecorded, it is recorded in the list of "relationshipPoints" (RelPoints)
                             else
                             {
                                 end = new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2)));
@@ -127,12 +141,13 @@ namespace FYProj
 
                                 RelPoints.Add(gbLocations);
 
+                                //The graphics on the from are redrawn to add graphics to represent the new relationship
                                 reDrawForm();
                             }
                         }
                     }
                 );
-
+                //The above event handlers are added to the newly created groupboxes
                 this.Controls.Add(gb);
             };
             //Stores the eventhandeler object in the global eventhandler object "globalEventHolder" 
@@ -164,6 +179,8 @@ namespace FYProj
         }
 
         //HELPER FUNCTIONS
+
+        //Clears the form (if it has graphics on it) and redraws/draws relevant graphics onto the form
         private void reDrawForm()
         {
             if (formCanvas != null)
@@ -174,6 +191,7 @@ namespace FYProj
             Pen blackPen = new Pen(Color.Black, 2);
             Pen redPen = new Pen(Color.Red, 2);
 
+            //For each relationship between groupboxes recorded in relPoints, lines between the relationships are drawn and the relavant symbols are added to the lines
             foreach (relationshipPoint coord in RelPoints)
             {
                 formCanvas.DrawLine(blackPen, coord.start.X, coord.start.Y, coord.end.X, coord.end.Y);
@@ -181,17 +199,19 @@ namespace FYProj
             }
         }
 
+        //Draws the relevants symbols on the relationship lines (symbols that indicate participation and multiplicity)
         private void drawLineSymbols(Point lineStart, Point LineEnd)
         {
             Graphics lineSymbol = CreateGraphics();
-            Point[] anchors = calcSymbolPostions(lineStart, LineEnd, 130);
-            drawMultiplicity("manyToOne", anchors[0], anchors[1], anchors[2], anchors[3], lineSymbol);
+            Point[] anchors = calcSymbolPostions(lineStart, LineEnd, 130); //Calculates the cooridnates, relative to the relationship line, that symbols will be placed on/near
+            drawMultiplicity("manyToOne", anchors[0], anchors[1], anchors[2], anchors[3], lineSymbol); //Draws multiplicity symbols 
 
             anchors = calcSymbolPostions(lineStart, LineEnd, 150);
-            drawParticipation("optional-manditory", anchors[0], anchors[1], anchors[2], anchors[3], lineSymbol); //optional-optional
+            drawParticipation("optional-manditory", anchors[0], anchors[1], anchors[2], anchors[3], lineSymbol); //Draws participation symbols 
         }
 
         //http://csharphelper.com/blog/2015/05/rotate-around-a-point-other-than-the-origin-in-c/
+        //Uses the Matrix library/type to give a rotated perspective of a point (used to transform graphic variables so lines and shapes can be drawns in a given orientation/angle)
         private Matrix rotateLine(Point anchor, int angle)
         {
             Matrix rotationResult = new Matrix();
@@ -199,6 +219,9 @@ namespace FYProj
             return rotationResult;
         }
 
+        //Given 2 points, a calculation is made for the location of a point if it was brought propotionally closer to ther other - (the extent to which is dependant on the "shinkFactor" parameter) -
+        //With consideration of the angle that the 2 points are offset by
+        //In theory, this could be used to find a point that can be used to expand the line while maintining it's angle
         private Point shrinkStartPoint(Point pointOne, Point pointTwo, double shrinkFactor)
         {
             return new Point(
@@ -207,13 +230,16 @@ namespace FYProj
             );
         }
 
+        //Calcilates the start and end points of the relationship line symbols relative to the line's location
         private Point[] calcSymbolPostions(Point lineStart, Point lineEnd, int shrinkTarget) {
             int lineLength = (int)Math.Sqrt((Math.Pow((lineStart.X - lineEnd.X), 2) + Math.Pow((lineStart.Y - lineEnd.Y), 2)));
-            double shrinkFactor = 1 - ((double)shrinkTarget / (double)lineLength);
-
+            double shrinkFactor = 1 - ((double)shrinkTarget / (double)lineLength); //Used to find a point that would shrink the line to a certain pixel size (shrinkTarget)
+#
+            //The anchors will be the start point of the symbols
             Point anchorPointOne = shrinkStartPoint(lineStart, lineEnd, shrinkFactor);
             Point anchorPointTwo = shrinkStartPoint(lineEnd, lineStart, shrinkFactor);
 
+            //The landing points will be the end points of the symbols 
             Point landingPointOne = shrinkStartPoint(lineEnd, anchorPointOne, 0.3);
             Point landingPointTwo = shrinkStartPoint(lineStart, anchorPointTwo, 0.3);
 
@@ -221,20 +247,24 @@ namespace FYProj
         }
 
         //https://vertabelo.com/blog/crow-s-foot-notation/
+        //Draws the multiplicity symbols using the calculated anchor points and landing points
         private void drawMultiplicity(String multiplicity, Point startAnchor, Point endAnchor, Point startLanding, Point endLanding, Graphics lineSymbol) {
             Point shrunkLandings;
             Point shrunkAnchor;
 
+            //The symbol drawn depends on the relationship's multiplicity type
             switch (multiplicity) {
                 case "oneToMany":
-                    shrunkAnchor = shrinkStartPoint(startLanding, startAnchor, 0.9);
-                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.23);
+                    //Draws a short lines that intersects the relationship lines near where the relationship line touches the groupbox with the "one to..." relationship
+                    shrunkAnchor = shrinkStartPoint(startLanding, startAnchor, 0.9); //Added to move the intersecting line close to the groupbox - for asktetics 
+                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.23); //Shortens interecting line
 
                     lineSymbol.Transform = rotateLine(shrunkAnchor, 90);
                     lineSymbol.DrawLine(redPen, shrunkAnchor.X, shrunkAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
                     lineSymbol.Transform = rotateLine(shrunkAnchor, 270);
                     lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, shrunkAnchor.X, shrunkAnchor.Y);
 
+                    //Draws a crows put symbol near where the relationship line touches the groupbox with the "... to many" relationship
                     lineSymbol.Transform = rotateLine(endAnchor, 0);
                     lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, endLanding.X, endLanding.Y);
                     lineSymbol.Transform = rotateLine(endAnchor, 20);
@@ -244,6 +274,7 @@ namespace FYProj
                     break;
 
                 case "oneToOne":
+                    //Draws an intersecting line on one end of the relationship line
                     shrunkAnchor = shrinkStartPoint(startLanding, startAnchor, 0.9);
                     shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.23);
 
@@ -252,6 +283,7 @@ namespace FYProj
                     lineSymbol.Transform = rotateLine(shrunkAnchor, 270);
                     lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, shrunkAnchor.X, shrunkAnchor.Y);
 
+                    //Draws another intersecting line on the other end of the relationship line
                     shrunkAnchor = shrinkStartPoint(endLanding, endAnchor, 0.9);
                     shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.23);
 
@@ -262,12 +294,14 @@ namespace FYProj
                     break;
 
                 case "manyToOne":
+                    //Draws a crows foot on one one end of the relationship line
                     lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
                     lineSymbol.Transform = rotateLine(startAnchor, 20);
                     lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
                     lineSymbol.Transform = rotateLine(startAnchor, 340);
                     lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
 
+                    //Draws another intersecting line on the other end of the relationship line
                     shrunkAnchor = shrinkStartPoint(endLanding, endAnchor, 0.9);
                     shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.23);
 
@@ -278,13 +312,14 @@ namespace FYProj
                     break;
 
                 case "manyToMany":
+                    //Draws a crows foot on one end of the relationship line
                     lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
                     lineSymbol.Transform = rotateLine(startAnchor, 20);
                     lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
                     lineSymbol.Transform = rotateLine(startAnchor, 340);
                     lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
 
-
+                    //Draws a crows foot on the other end of the relationship line
                     lineSymbol.Transform = rotateLine(endAnchor, 0);
                     lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, endLanding.X, endLanding.Y);
                     lineSymbol.Transform = rotateLine(endAnchor, 20);
@@ -306,12 +341,18 @@ namespace FYProj
 
             switch (participation)
             {
+                //Draws 2 circles in the calculated anchored locations (close to the respective/related multiplicity symbols)
                 case "optional-optional":
+                    //Draws Circle
+                    //The circle is drawn using the coordinates of an undrawn rectangle (a rectangle object) which has coorodinates relative to the anchor 
+                    //The angle of the relationship line  is used to make the orientation of the rectangle relective of the relationship line's angle
+                    //This is so that the circle that is eventually drawn with it's coordinates intersects the relationship line and follows it at a fixed point
                     lineAngle = Math.Abs(((Math.Atan2((startAnchor.X - startLanding.X), (startAnchor.Y - startLanding.Y)) * 180 / Math.PI) + 180) - 360);
                     lineSymbol.Transform = rotateLine(startAnchor, (int) lineAngle + 45);
                     circleBounds = new Rectangle(startAnchor, new Size(15, 15));;
                     lineSymbol.DrawEllipse(redPen, circleBounds);
-                    
+
+                    //Draws another Circle
                     lineAngle = Math.Abs(((Math.Atan2((endAnchor.X - endLanding.X), (endAnchor.Y - endLanding.Y)) * 180 / Math.PI) + 180) - 360);
                     lineSymbol.Transform = rotateLine(endAnchor, (int)lineAngle + 45);
                     circleBounds = new Rectangle(endAnchor, new Size(15, 15));
@@ -319,12 +360,15 @@ namespace FYProj
                     lineSymbol.DrawEllipse(redPen, circleBounds);
                     break;
 
+                //Draws an interecting line and a circle at appropriate locations on the relationship line
                 case "manditory-optional":
+                    //Draws Circle
                     lineAngle = Math.Abs(((Math.Atan2((endAnchor.X - endLanding.X), (endAnchor.Y - endLanding.Y)) * 180 / Math.PI) + 180) - 360);
                     lineSymbol.Transform = rotateLine(endAnchor, (int)lineAngle + 45);
                     circleBounds = new Rectangle(endAnchor, new Size(15, 15));
                     lineSymbol.DrawEllipse(redPen, circleBounds);
 
+                    //Draws interecting line
                     startAnchor = shrinkStartPoint(startLanding, startAnchor, 0.83);
                     shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.14);
 
@@ -334,12 +378,15 @@ namespace FYProj
                     lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, startAnchor.X, startAnchor.Y);
                     break;
 
+                //Draws a circles and an intersecting line at appropriate locations on the relationship line
                 case "optional-manditory":
+                    //Draws Circle
                     lineAngle = Math.Abs(((Math.Atan2((startAnchor.X - startLanding.X), (startAnchor.Y - startLanding.Y)) * 180 / Math.PI) + 180) - 360);
                     lineSymbol.Transform = rotateLine(startAnchor, (int)lineAngle + 45);
                     circleBounds = new Rectangle(startAnchor, new Size(15, 15)); ;
                     lineSymbol.DrawEllipse(redPen, circleBounds);
 
+                    //Draws interecting line
                     endAnchor = shrinkStartPoint(endLanding, endAnchor, 0.83);
                     shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.14);
 
@@ -349,7 +396,9 @@ namespace FYProj
                     lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, endAnchor.X, endAnchor.Y);
                     break;
 
+                //Draws interecting lines at appropriate locations on the relationship line
                 case "manditory-manditory":
+                    //Draws interecting line
                     startAnchor = shrinkStartPoint(startLanding, startAnchor, 0.83);
                     shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.14);
 
@@ -358,6 +407,7 @@ namespace FYProj
                     lineSymbol.Transform = rotateLine(startAnchor, 270);
                     lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, startAnchor.X, startAnchor.Y);
 
+                    //Draws another interecting line
                     endAnchor = shrinkStartPoint(endLanding, endAnchor, 0.83);
                     shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.14);
 
@@ -372,6 +422,7 @@ namespace FYProj
             }
         }
 
+        //Checks if 2 groupboxes have a relationship associated to them/the tables they are associated with
         private bool isRelEstablished(GroupBox gbOne, GroupBox gbTwo)
         {
             foreach (relationshipPoint rel in RelPoints)
@@ -384,6 +435,7 @@ namespace FYProj
             return false;
         }
 
+        //records the new location of a groupbox that has been moved
         private void recordTableRelocation(GroupBox gbOne, Point newPoint)
         {
             foreach (relationshipPoint rel in RelPoints)
