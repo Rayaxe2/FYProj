@@ -199,9 +199,159 @@ namespace FYProj
             //For each relationship between groupboxes recorded in relPoints, lines between the relationships are drawn and the relavant symbols are added to the lines
             foreach (relationshipPoint coord in RelPoints)
             {
-                formCanvas.DrawLine(blackPen, coord.start.X, coord.start.Y, coord.end.X, coord.end.Y);
-                drawLineSymbols(coord.start, coord.end);
+                drawRelationshipLines(coord);
+                //formCanvas.DrawLine(blackPen, coord.start.X, coord.start.Y, coord.end.X, coord.end.Y);
+                //getGBDims()
+                //drawLineSymbols(coord.start, coord.end);
             }
+        }
+
+        private void drawRelationshipLines(relationshipPoint GBCoords)
+        {
+            double lineAngle = Math.Abs(((Math.Atan2((GBCoords.start.X - GBCoords.end.X), (GBCoords.start.Y - GBCoords.end.Y)) * 180 / Math.PI) + 180) - 360);
+            int lineLength = (int)Math.Sqrt((Math.Pow((GBCoords.start.X - GBCoords.end.X), 2) + Math.Pow((GBCoords.start.Y - GBCoords.end.Y), 2)));
+
+            Point[][] clipPoints = GBCoords.getGBPoints();
+            Point startPoint, endPoint;
+
+            double progressTowardNextClip = 0;
+
+            double GBOneWidth = GBCoords.gb1.Width;
+            double GBTwoWidth = GBCoords.gb2.Width;
+            double GBOneHieght = GBCoords.gb1.Height;
+            double GBTwoHieght = GBCoords.gb2.Height;
+
+            /*
+            Top-mid to Bottom-mid (|): 337.6 - 22.5
+            Top-right to Bottom-left (/): 22.6 - 67.5
+            Right-mid to Left-mid (-): 67.6 - 112.5
+            Right-bottom to Left-top (\): 112.5 - 157.5
+            Bottom-mid to Top-mid (|): 157.6 - 202.5
+            Bottom-left to Top-right (/): 202.6 - 247.5
+            Left-mid to Right-mid (-): 247.6 - 292.5
+            Left-top to Right-bottom (\): 292.6 - 337.5
+             */
+
+
+            //Bottom-mid to Top-mid(|): 337.6 - 22.5
+            if (lineAngle >= 337.6 || (lineAngle >= 0 && lineAngle <= 22.5))
+            {
+                startPoint = clipPoints[0][5];
+                endPoint = clipPoints[1][1];
+
+                if (lineAngle < 360 && lineAngle > 22.5)
+                {
+                    progressTowardNextClip = ((360 - lineAngle) / 22.5);
+                    startPoint.X = startPoint.X + (int) ((GBOneWidth / 2) * progressTowardNextClip);
+                    endPoint.X = endPoint.X - (int)((GBOneWidth / 2) * progressTowardNextClip);
+                }
+                else {
+                    progressTowardNextClip = (lineAngle / 22.5);
+                    startPoint.X = startPoint.X - (int)((GBOneWidth / 2) * progressTowardNextClip);
+                    endPoint.X = endPoint.X + (int)((GBOneWidth / 2) * progressTowardNextClip);
+                }
+            }
+
+
+            //Bottom-left to Top-right (/): 22.6 - 67.5
+            else if (lineAngle >= 22.6 && lineAngle <= 67.5)
+            {
+                startPoint = clipPoints[0][6];
+                endPoint = clipPoints[1][2];
+            }
+
+
+            //Left-mid Right-mid (-): 67.6 - 112.5
+            else if (lineAngle >= 67.6 && lineAngle <= 112.5)
+            {
+                startPoint = clipPoints[0][7];
+                endPoint = clipPoints[1][3];
+
+                if (lineAngle > 67.5 && lineAngle < 90)
+                {
+                    progressTowardNextClip = ((lineAngle - 67.6) / 22.5);
+                    startPoint.Y = (int) (startPoint.Y + (GBOneHieght / 2)) - (int)((GBOneHieght / 2) * progressTowardNextClip);
+                    endPoint.Y = (int) (endPoint.Y - (GBOneHieght / 2)) + (int)((GBOneHieght / 2) * progressTowardNextClip);
+                }
+                else
+                {
+                    progressTowardNextClip = ((lineAngle - 90.1) / 22.5);
+                    startPoint.Y = (int)(startPoint.Y) - (int)((GBOneHieght / 2) * progressTowardNextClip);
+                    endPoint.Y = (int)(endPoint.Y) + (int)((GBOneHieght / 2) * progressTowardNextClip);
+                }
+            }
+
+
+            //Left-top to Right-bottom (\): 112.6 - 157.5
+            else if (lineAngle >= 112.6 && lineAngle <= 157.5)
+            {
+                startPoint = clipPoints[0][0];
+                endPoint = clipPoints[1][4];
+            }
+
+
+            //Top-mid to Bottom-mid (|): 157.6 - 202.5
+            else if (lineAngle >= 157.6 && lineAngle <= 202.5)
+            {
+                startPoint = clipPoints[0][1];
+                endPoint = clipPoints[1][5];
+
+                if (lineAngle > 157.5 && lineAngle < 180)
+                {
+                    progressTowardNextClip = ((lineAngle - 157.6) / 22.5);
+                    startPoint.X = (int) (startPoint.X - (GBOneWidth / 2)) + (int)((GBOneWidth / 2) * progressTowardNextClip);
+                    endPoint.X = (int) (endPoint.X + (GBOneWidth / 2)) - (int)((GBOneWidth / 2) * progressTowardNextClip);
+                }
+                else
+                {
+                    progressTowardNextClip = ((lineAngle - 180.1) / 22.5);
+                    startPoint.X = (int) startPoint.X + (int)((GBOneWidth / 2) * progressTowardNextClip);
+                    endPoint.X = (int) startPoint.X - (int)((GBOneWidth / 2) * progressTowardNextClip);
+                }
+            }
+
+
+            //Top-right to Bottom-left (/): 202.6 - 247.5
+            else if (lineAngle >= 202.6 && lineAngle <= 247.5)
+            {
+                startPoint = clipPoints[0][2];
+                endPoint = clipPoints[1][6];
+            }
+
+
+            //Right-mid to Left-mid (-): 247.6 - 292.5
+            else if (lineAngle >= 247.6 && lineAngle <= 292.5)
+            {
+                startPoint = clipPoints[0][3];
+                endPoint = clipPoints[1][7];
+
+                if (lineAngle > 247.5 && lineAngle < 270)
+                {
+                    progressTowardNextClip = ((lineAngle - 247.6) / 22.5);
+                    startPoint.Y = (int)(startPoint.Y - (GBOneHieght / 2)) + (int)((GBOneHieght / 2) * progressTowardNextClip);
+                    endPoint.Y = (int)(endPoint.Y + (GBOneHieght / 2)) - (int)((GBOneHieght / 2) * progressTowardNextClip);
+                }
+                else
+                {
+                    progressTowardNextClip = ((lineAngle - 270.1) / 22.5);
+                    startPoint.Y = (int)(startPoint.Y) + (int)((GBOneHieght / 2) * progressTowardNextClip);
+                    endPoint.Y = (int)(endPoint.Y) - (int)((GBOneHieght / 2) * progressTowardNextClip);
+                }
+            }
+
+
+            //Right-bottom to Left-top (\): 292.6 - 337.5
+            else if (lineAngle >= 292.6 && lineAngle <= 337.5)
+            {
+                startPoint = clipPoints[0][4];
+                endPoint = clipPoints[1][0];
+            }
+
+            else {
+                return;
+            }
+
+            formCanvas.DrawLine(blackPen, startPoint.X, startPoint.Y, endPoint.X, endPoint.Y);
         }
 
         //Draws the relevants symbols on the relationship lines (symbols that indicate participation and multiplicity)
