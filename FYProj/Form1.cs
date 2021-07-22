@@ -197,16 +197,15 @@ namespace FYProj
             Pen redPen = new Pen(Color.Red, 2);
 
             //For each relationship between groupboxes recorded in relPoints, lines between the relationships are drawn and the relavant symbols are added to the lines
-            foreach (relationshipPoint coord in RelPoints)
+            foreach (relationshipPoint relationship in RelPoints)
             {
-                drawRelationshipLines(coord);
+                Point[] clippedPoints = drawRelationshipLines(relationship);
                 //formCanvas.DrawLine(blackPen, coord.start.X, coord.start.Y, coord.end.X, coord.end.Y);
-                //getGBDims()
-                //drawLineSymbols(coord.start, coord.end);
+                drawLineSymbols(clippedPoints[0], clippedPoints[1]);
             }
         }
 
-        private void drawRelationshipLines(relationshipPoint GBCoords)
+        private Point[] drawRelationshipLines(relationshipPoint GBCoords)
         {
             double lineAngle = Math.Abs(((Math.Atan2((GBCoords.start.X - GBCoords.end.X), (GBCoords.start.Y - GBCoords.end.Y)) * 180 / Math.PI) + 180) - 360);
             int lineLength = (int)Math.Sqrt((Math.Pow((GBCoords.start.X - GBCoords.end.X), 2) + Math.Pow((GBCoords.start.Y - GBCoords.end.Y), 2)));
@@ -239,16 +238,18 @@ namespace FYProj
                 startPoint = clipPoints[0][5];
                 endPoint = clipPoints[1][1];
 
-                if (lineAngle < 360 && lineAngle > 22.5)
+
+                if (lineAngle < 360 && lineAngle >= 22.5)
                 {
                     progressTowardNextClip = ((360 - lineAngle) / 22.5);
-                    startPoint.X = startPoint.X + (int) ((GBOneWidth / 2) * progressTowardNextClip);
-                    endPoint.X = endPoint.X - (int)((GBOneWidth / 2) * progressTowardNextClip);
+                    startPoint.X = startPoint.X + (int)((GBTwoWidth / 2) * progressTowardNextClip);
+                    //endPoint.X = endPoint.X - (int)((GBOneWidth / 2) * progressTowardNextClip);
                 }
-                else {
+                else
+                {
                     progressTowardNextClip = (lineAngle / 22.5);
-                    startPoint.X = startPoint.X - (int)((GBOneWidth / 2) * progressTowardNextClip);
-                    endPoint.X = endPoint.X + (int)((GBOneWidth / 2) * progressTowardNextClip);
+                    startPoint.X = startPoint.X - (int)((GBTwoWidth / 2) * progressTowardNextClip);
+                    //endPoint.X = endPoint.X + (int)((GBOneWidth / 2) * progressTowardNextClip);
                 }
             }
 
@@ -258,6 +259,18 @@ namespace FYProj
             {
                 startPoint = clipPoints[0][6];
                 endPoint = clipPoints[1][2];
+
+                if (lineAngle > 22.5 && lineAngle <= 45)
+                {
+                    progressTowardNextClip = (lineAngle - 22.6) / 22.5;
+                    endPoint.X = (int)(endPoint.X - (GBOneWidth / 2)) + (int)((GBOneWidth / 2) * progressTowardNextClip);
+                }
+                else
+                {
+                    progressTowardNextClip = ((lineAngle - 45.1) / 22.5);
+                    endPoint.Y = endPoint.Y + (int)((GBOneHieght / 2) * progressTowardNextClip);
+                    //endPoint.X = (int) (endPoint.X - (GBOneWidth / 4)) + (int)((GBOneWidth / 4) * progressTowardNextClip);
+                }
             }
 
 
@@ -267,17 +280,18 @@ namespace FYProj
                 startPoint = clipPoints[0][7];
                 endPoint = clipPoints[1][3];
 
-                if (lineAngle > 67.5 && lineAngle < 90)
+
+                if (lineAngle >= 67.5 && lineAngle <= 90)
                 {
                     progressTowardNextClip = ((lineAngle - 67.6) / 22.5);
-                    startPoint.Y = (int) (startPoint.Y + (GBOneHieght / 2)) - (int)((GBOneHieght / 2) * progressTowardNextClip);
-                    endPoint.Y = (int) (endPoint.Y - (GBOneHieght / 2)) + (int)((GBOneHieght / 2) * progressTowardNextClip);
+                    startPoint.Y = (int)(startPoint.Y + (GBTwoHieght / 2)) - (int)((GBOneHieght / 2) * progressTowardNextClip);
+                    //endPoint.Y = (int) (endPoint.Y - (GBOneHieght / 2)) + (int)((GBOneHieght / 2) * progressTowardNextClip);
                 }
                 else
                 {
                     progressTowardNextClip = ((lineAngle - 90.1) / 22.5);
-                    startPoint.Y = (int)(startPoint.Y) - (int)((GBOneHieght / 2) * progressTowardNextClip);
-                    endPoint.Y = (int)(endPoint.Y) + (int)((GBOneHieght / 2) * progressTowardNextClip);
+                    startPoint.Y = (int)(startPoint.Y) - (int)((GBTwoHieght / 2) * progressTowardNextClip);
+                    //endPoint.Y = (int)(endPoint.Y) + (int)((GBOneHieght / 2) * progressTowardNextClip);
                 }
             }
 
@@ -287,6 +301,17 @@ namespace FYProj
             {
                 startPoint = clipPoints[0][0];
                 endPoint = clipPoints[1][4];
+
+                if (lineAngle >= 112.5 && lineAngle <= 135)
+                {
+                    progressTowardNextClip = ((lineAngle - 112.6) / 22.5);
+                    endPoint.Y = (int)(endPoint.Y - (GBOneHieght / 2)) + (int)((GBOneHieght / 2) * progressTowardNextClip);
+                }
+                else
+                {
+                    progressTowardNextClip = ((lineAngle - 135.1) / 22.5);
+                    endPoint.X = (int)(endPoint.X) - (int)((GBOneWidth / 2) * progressTowardNextClip);
+                }
             }
 
 
@@ -296,18 +321,20 @@ namespace FYProj
                 startPoint = clipPoints[0][1];
                 endPoint = clipPoints[1][5];
 
-                if (lineAngle > 157.5 && lineAngle < 180)
+
+                if (lineAngle >= 157.5 && lineAngle <= 180)
                 {
                     progressTowardNextClip = ((lineAngle - 157.6) / 22.5);
-                    startPoint.X = (int) (startPoint.X - (GBOneWidth / 2)) + (int)((GBOneWidth / 2) * progressTowardNextClip);
-                    endPoint.X = (int) (endPoint.X + (GBOneWidth / 2)) - (int)((GBOneWidth / 2) * progressTowardNextClip);
+                    startPoint.X = (int)(startPoint.X - (GBTwoWidth / 2)) + (int)((GBTwoWidth / 2) * progressTowardNextClip);
+                    //endPoint.X = (int) (endPoint.X + (GBOneWidth / 2)) - (int)((GBOneWidth / 2) * progressTowardNextClip);
                 }
                 else
                 {
                     progressTowardNextClip = ((lineAngle - 180.1) / 22.5);
-                    startPoint.X = (int) startPoint.X + (int)((GBOneWidth / 2) * progressTowardNextClip);
-                    endPoint.X = (int) startPoint.X - (int)((GBOneWidth / 2) * progressTowardNextClip);
+                    startPoint.X = (int)startPoint.X + (int)((GBTwoWidth / 2) * progressTowardNextClip);
+                    //endPoint.X = (int) startPoint.X - (int)((GBOneWidth / 2) * progressTowardNextClip);
                 }
+
             }
 
 
@@ -316,6 +343,17 @@ namespace FYProj
             {
                 startPoint = clipPoints[0][2];
                 endPoint = clipPoints[1][6];
+
+                if (lineAngle >= 202.5 && lineAngle <= 225)
+                {
+                    progressTowardNextClip = ((lineAngle - 202.6) / 22.5);
+                    endPoint.X = (int)(endPoint.X + (GBOneWidth / 2)) - (int)((GBOneWidth / 2) * progressTowardNextClip);
+                }
+                else
+                {
+                    progressTowardNextClip = ((lineAngle - 225.1) / 22.5);
+                    endPoint.Y = (int)endPoint.Y - (int)((GBOneHieght / 2) * progressTowardNextClip);
+                }
             }
 
 
@@ -325,18 +363,20 @@ namespace FYProj
                 startPoint = clipPoints[0][3];
                 endPoint = clipPoints[1][7];
 
+
                 if (lineAngle > 247.5 && lineAngle < 270)
                 {
                     progressTowardNextClip = ((lineAngle - 247.6) / 22.5);
-                    startPoint.Y = (int)(startPoint.Y - (GBOneHieght / 2)) + (int)((GBOneHieght / 2) * progressTowardNextClip);
-                    endPoint.Y = (int)(endPoint.Y + (GBOneHieght / 2)) - (int)((GBOneHieght / 2) * progressTowardNextClip);
+                    startPoint.Y = (int)(startPoint.Y - (GBTwoHieght / 2)) + (int)((GBTwoHieght / 2) * progressTowardNextClip);
+                    //endPoint.Y = (int)(endPoint.Y + (GBOneHieght / 2)) - (int)((GBOneHieght / 2) * progressTowardNextClip);
                 }
                 else
                 {
                     progressTowardNextClip = ((lineAngle - 270.1) / 22.5);
-                    startPoint.Y = (int)(startPoint.Y) + (int)((GBOneHieght / 2) * progressTowardNextClip);
-                    endPoint.Y = (int)(endPoint.Y) - (int)((GBOneHieght / 2) * progressTowardNextClip);
+                    startPoint.Y = (int)(startPoint.Y) + (int)((GBTwoHieght / 2) * progressTowardNextClip);
+                    //endPoint.Y = (int)(endPoint.Y) - (int)((GBOneHieght / 2) * progressTowardNextClip);
                 }
+
             }
 
 
@@ -345,23 +385,39 @@ namespace FYProj
             {
                 startPoint = clipPoints[0][4];
                 endPoint = clipPoints[1][0];
+
+                if (lineAngle > 292.5 && lineAngle < 315)
+                {
+                    progressTowardNextClip = ((lineAngle - 292.6) / 22.5);
+                    endPoint.Y = (int)(endPoint.Y + (GBOneHieght / 2)) - (int)((GBOneHieght / 2) * progressTowardNextClip);
+                }
+                else
+                {
+                    progressTowardNextClip = ((lineAngle - 315.1) / 22.5);
+                    endPoint.X = (int)(endPoint.X) + (int)((GBOneWidth / 2) * progressTowardNextClip);
+                }
             }
 
             else {
-                return;
+                startPoint = clipPoints[0][5];
+                endPoint = clipPoints[1][1];
+
+                progressTowardNextClip = (lineAngle / 22.5);
+                startPoint.X = startPoint.X - (int)((GBTwoWidth / 2) * progressTowardNextClip);
             }
 
             formCanvas.DrawLine(blackPen, startPoint.X, startPoint.Y, endPoint.X, endPoint.Y);
+            return new Point[] { startPoint, endPoint };
         }
 
         //Draws the relevants symbols on the relationship lines (symbols that indicate participation and multiplicity)
         private void drawLineSymbols(Point lineStart, Point LineEnd)
         {
             Graphics lineSymbol = CreateGraphics();
-            Point[] anchors = calcSymbolPostions(lineStart, LineEnd, 130); //Calculates the cooridnates, relative to the relationship line, that symbols will be placed on/near
-            drawMultiplicity("manyToOne", anchors[0], anchors[1], anchors[2], anchors[3], lineSymbol); //Draws multiplicity symbols 
+            Point[] anchors = calcSymbolPostions(lineStart, LineEnd, 30); //130 //Calculates the cooridnates, relative to the relationship line, that symbols will be placed on/near
+            drawMultiplicity("oneToMany", anchors[0], anchors[1], anchors[2], anchors[3], lineSymbol); //Draws multiplicity symbols 
 
-            anchors = calcSymbolPostions(lineStart, LineEnd, 150);
+            anchors = calcSymbolPostions(lineStart, LineEnd, 59); 
             drawParticipation("optional-manditory", anchors[0], anchors[1], anchors[2], anchors[3], lineSymbol); //Draws participation symbols 
         }
 
@@ -379,13 +435,19 @@ namespace FYProj
         //In theory, this could be used to find a point that can be used to expand the line while maintining it's angle
         private Point shrinkStartPoint(Point pointOne, Point pointTwo, double shrinkFactor)
         {
+            if (shrinkFactor >= Int32.MaxValue) {
+                return new Point(
+                Convert.ToInt32(pointOne.X * (pointTwo.X - pointOne.X)),
+                Convert.ToInt32(pointOne.Y * (pointTwo.Y - pointOne.Y))
+            );
+            }
             return new Point(
                 Convert.ToInt32(pointOne.X + shrinkFactor * (pointTwo.X - pointOne.X)),
                 Convert.ToInt32(pointOne.Y + shrinkFactor * (pointTwo.Y - pointOne.Y))
             );
         }
 
-        //Calcilates the start and end points of the relationship line symbols relative to the line's location
+        //Calculates the start and end points of the relationship line symbols relative to the line's location
         private Point[] calcSymbolPostions(Point lineStart, Point lineEnd, int shrinkTarget) {
             int lineLength = (int)Math.Sqrt((Math.Pow((lineStart.X - lineEnd.X), 2) + Math.Pow((lineStart.Y - lineEnd.Y), 2)));
             double shrinkFactor = 1 - ((double)shrinkTarget / (double)lineLength); //Used to find a point that would shrink the line to a certain pixel size (shrinkTarget)
@@ -394,11 +456,15 @@ namespace FYProj
             Point anchorPointOne = shrinkStartPoint(lineStart, lineEnd, shrinkFactor);
             Point anchorPointTwo = shrinkStartPoint(lineEnd, lineStart, shrinkFactor);
 
+            /*
             //The landing points will be the end points of the symbols 
             Point landingPointOne = shrinkStartPoint(lineEnd, anchorPointOne, 0.3);
             Point landingPointTwo = shrinkStartPoint(lineStart, anchorPointTwo, 0.3);
 
             return new Point[] { anchorPointOne, anchorPointTwo, landingPointOne, landingPointTwo };
+            */
+
+            return new Point[] { anchorPointOne, anchorPointTwo, lineEnd, lineStart };
         }
 
         //https://vertabelo.com/blog/crow-s-foot-notation/
@@ -411,8 +477,8 @@ namespace FYProj
             switch (multiplicity) {
                 case "oneToMany":
                     //Draws a short lines that intersects the relationship lines near where the relationship line touches the groupbox with the "one to..." relationship
-                    shrunkAnchor = shrinkStartPoint(startLanding, startAnchor, 0.9); //Added to move the intersecting line close to the groupbox - for asktetics 
-                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.23); //Shortens interecting line
+                    shrunkAnchor = shrinkStartPoint(startLanding, startAnchor, 0.55); //Added to move the intersecting line close to the groupbox - for asktetics 
+                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.9); //Shortens interecting line
 
                     lineSymbol.Transform = rotateLine(shrunkAnchor, 90);
                     lineSymbol.DrawLine(redPen, shrunkAnchor.X, shrunkAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
@@ -430,8 +496,8 @@ namespace FYProj
 
                 case "oneToOne":
                     //Draws an intersecting line on one end of the relationship line
-                    shrunkAnchor = shrinkStartPoint(startLanding, startAnchor, 0.9);
-                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.23);
+                    shrunkAnchor = shrinkStartPoint(endLanding, endAnchor, 0.55);
+                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.9);
 
                     lineSymbol.Transform = rotateLine(shrunkAnchor, 90);
                     lineSymbol.DrawLine(redPen, shrunkAnchor.X, shrunkAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
@@ -439,8 +505,8 @@ namespace FYProj
                     lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, shrunkAnchor.X, shrunkAnchor.Y);
 
                     //Draws another intersecting line on the other end of the relationship line
-                    shrunkAnchor = shrinkStartPoint(endLanding, endAnchor, 0.9);
-                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.23);
+                    shrunkAnchor = shrinkStartPoint(endLanding, endAnchor, 0.55);
+                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.9);
 
                     lineSymbol.Transform = rotateLine(shrunkAnchor, 90);
                     lineSymbol.DrawLine(redPen, shrunkAnchor.X, shrunkAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
@@ -457,8 +523,8 @@ namespace FYProj
                     lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
 
                     //Draws another intersecting line on the other end of the relationship line
-                    shrunkAnchor = shrinkStartPoint(endLanding, endAnchor, 0.9);
-                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.23);
+                    shrunkAnchor = shrinkStartPoint(endLanding, endAnchor, 0.55);
+                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.9);
 
                     lineSymbol.Transform = rotateLine(shrunkAnchor, 90);
                     lineSymbol.DrawLine(redPen, shrunkAnchor.X, shrunkAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
@@ -504,28 +570,28 @@ namespace FYProj
                     //This is so that the circle that is eventually drawn with it's coordinates intersects the relationship line and follows it at a fixed point
                     lineAngle = Math.Abs(((Math.Atan2((startAnchor.X - startLanding.X), (startAnchor.Y - startLanding.Y)) * 180 / Math.PI) + 180) - 360);
                     lineSymbol.Transform = rotateLine(startAnchor, (int) lineAngle + 45);
-                    circleBounds = new Rectangle(startAnchor, new Size(15, 15));;
+                    circleBounds = new Rectangle(startAnchor, new Size(25, 25));;
                     lineSymbol.DrawEllipse(redPen, circleBounds);
 
                     //Draws another Circle
                     lineAngle = Math.Abs(((Math.Atan2((endAnchor.X - endLanding.X), (endAnchor.Y - endLanding.Y)) * 180 / Math.PI) + 180) - 360);
                     lineSymbol.Transform = rotateLine(endAnchor, (int)lineAngle + 45);
-                    circleBounds = new Rectangle(endAnchor, new Size(15, 15));
+                    circleBounds = new Rectangle(endAnchor, new Size(25, 25));
                     //lineSymbol.DrawRectangle(redPen, circleBounds);
                     lineSymbol.DrawEllipse(redPen, circleBounds);
                     break;
 
                 //Draws an interecting line and a circle at appropriate locations on the relationship line
-                case "manditory-optional":
+                case "optional-manditory":
                     //Draws Circle
                     lineAngle = Math.Abs(((Math.Atan2((endAnchor.X - endLanding.X), (endAnchor.Y - endLanding.Y)) * 180 / Math.PI) + 180) - 360);
                     lineSymbol.Transform = rotateLine(endAnchor, (int)lineAngle + 45);
-                    circleBounds = new Rectangle(endAnchor, new Size(15, 15));
+                    circleBounds = new Rectangle(endAnchor, new Size(25, 25));
                     lineSymbol.DrawEllipse(redPen, circleBounds);
 
                     //Draws interecting line
-                    startAnchor = shrinkStartPoint(startLanding, startAnchor, 0.83);
-                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.14);
+                    startAnchor = shrinkStartPoint(startLanding, startAnchor, 0.54);
+                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.43);
 
                     lineSymbol.Transform = rotateLine(startAnchor, 90);
                     lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
@@ -534,16 +600,16 @@ namespace FYProj
                     break;
 
                 //Draws a circles and an intersecting line at appropriate locations on the relationship line
-                case "optional-manditory":
+                case "manditory-optional":
                     //Draws Circle
                     lineAngle = Math.Abs(((Math.Atan2((startAnchor.X - startLanding.X), (startAnchor.Y - startLanding.Y)) * 180 / Math.PI) + 180) - 360);
                     lineSymbol.Transform = rotateLine(startAnchor, (int)lineAngle + 45);
-                    circleBounds = new Rectangle(startAnchor, new Size(15, 15)); ;
+                    circleBounds = new Rectangle(startAnchor, new Size(25, 25)); ;
                     lineSymbol.DrawEllipse(redPen, circleBounds);
 
                     //Draws interecting line
-                    endAnchor = shrinkStartPoint(endLanding, endAnchor, 0.83);
-                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.14);
+                    endAnchor = shrinkStartPoint(endLanding, endAnchor, 0.54);
+                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.43);
 
                     lineSymbol.Transform = rotateLine(endAnchor, 90);
                     lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
@@ -554,8 +620,8 @@ namespace FYProj
                 //Draws interecting lines at appropriate locations on the relationship line
                 case "manditory-manditory":
                     //Draws interecting line
-                    startAnchor = shrinkStartPoint(startLanding, startAnchor, 0.83);
-                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.14);
+                    startAnchor = shrinkStartPoint(startLanding, startAnchor, 0.54); //0.44
+                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.43); //0.47
 
                     lineSymbol.Transform = rotateLine(startAnchor, 90);
                     lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
@@ -563,8 +629,8 @@ namespace FYProj
                     lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, startAnchor.X, startAnchor.Y);
 
                     //Draws another interecting line
-                    endAnchor = shrinkStartPoint(endLanding, endAnchor, 0.83);
-                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.14);
+                    endAnchor = shrinkStartPoint(endLanding, endAnchor, 0.54);
+                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.43);
 
                     lineSymbol.Transform = rotateLine(endAnchor, 90);
                     lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
