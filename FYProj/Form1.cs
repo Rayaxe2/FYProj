@@ -207,7 +207,8 @@ namespace FYProj
 
         private Point[] drawRelationshipLines(relationshipPoint GBCoords)
         {
-            double lineAngle = Math.Abs(((Math.Atan2((GBCoords.start.X - GBCoords.end.X), (GBCoords.start.Y - GBCoords.end.Y)) * 180 / Math.PI) + 180) - 360);
+            double preciseLineAngle = Math.Abs(((Math.Atan2((GBCoords.start.X - GBCoords.end.X), (GBCoords.start.Y - GBCoords.end.Y)) * 180 / Math.PI) + 180) - 360);
+            double lineAngle = Math.Round(preciseLineAngle, 1);
             int lineLength = (int)Math.Sqrt((Math.Pow((GBCoords.start.X - GBCoords.end.X), 2) + Math.Pow((GBCoords.start.Y - GBCoords.end.Y), 2)));
 
             Point[][] clipPoints = GBCoords.getGBPoints();
@@ -230,7 +231,6 @@ namespace FYProj
             Left-mid to Right-mid (-): 247.6 - 292.5
             Left-top to Right-bottom (\): 292.6 - 337.5
              */
-
 
             //Bottom-mid to Top-mid(|): 337.6 - 22.5
             if (lineAngle >= 337.6 || (lineAngle >= 0 && lineAngle <= 22.5))
