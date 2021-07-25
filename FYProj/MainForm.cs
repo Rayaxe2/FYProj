@@ -14,6 +14,7 @@ namespace FYProj
     public partial class MainForm : Form
     {
         EventHandler globalEventHolder; //Stores a globally recognised event 
+        EventHandler noEvent = (s, e) => {};
         int GBNum = 0; //An incrmental value added to the names of new groupboxes
 
         String interactionMode = "None"; //Indicates the active mode during GUI interactions
@@ -142,20 +143,75 @@ namespace FYProj
                             else
                             {
                                 string MultAndPart = "Unspecified";
+                                bool actionCanceled;
                                 //Opens form where user sepcifies the relationship between tables
                                 using (Form2 DescRelationForm = new Form2()) {
                                     DescRelationForm.ShowDialog();
                                     MultAndPart = DescRelationForm.multiplicity + " " + DescRelationForm.participation;
-                                } 
+                                    actionCanceled = DescRelationForm.actionCanceled;
+                                }
 
-                                end = new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2)));
-                                relationshipPoint gbLocations = new relationshipPoint(start, end, selectedGroupBox1, gb, MultAndPart);
+                                if (actionCanceled == false)
+                                {
+                                    end = new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2)));
+                                    relationshipPoint gbLocations = new relationshipPoint(start, end, selectedGroupBox1, gb, MultAndPart);
 
-                                RelPoints.Add(gbLocations);
+                                    RelPoints.Add(gbLocations);
 
-                                //The graphics on the from are redrawn to add graphics to represent the new relationship
+                                    //The graphics on the from are redrawn to add graphics to represent the new relationship
+                                    reDrawForm();
+                                }
+                            }
+                        }
+                        else if (interactionMode == "RemoveRel1")
+                        {
+                            gb.BackColor = Color.Green;
+                            selectedGroupBox1 = gb;
+                            interactionMode = "RemoveRel2";
+                        }
+                        else if (interactionMode == "RemoveRel2")
+                        {
+                            gb.BackColor = Color.Yellow;
+                            await Task.Delay(300);
+                            gb.BackColor = default;
+                            selectedGroupBox1.BackColor = default;
+                            interactionMode = "None";
+
+                            if (isRelEstablished(gb, selectedGroupBox1) == false)
+                            {
+                                MessageBox.Show("There is no relationship between the selected tables!");
+                            }
+                            //Add support later
+                            else if (gb == selectedGroupBox1)
+                            {
+                                MessageBox.Show("Self relationships are not supported yet!");
+                            }
+                            else
+                            {
+                                relationshipPoint relation = findEstablishedRel(gb, selectedGroupBox1);
+
+                                if (relation == null)
+                                {
+                                    MessageBox.Show("There is no relationship between the selected tables!");
+                                }
+                                else {
+                                    RelPoints.Remove(relation);
+                                }
                                 reDrawForm();
                             }
+                        }
+                        else if (interactionMode == "deleteTable") {
+                            gb.BackColor = Color.White;
+                            await Task.Delay(300);
+
+                            List<relationshipPoint> tableRels = findAllEstablishedRels(gb);
+                            foreach (relationshipPoint relation in tableRels) {
+                                RelPoints.Remove(relation);
+                            }
+                            this.Controls.Remove(gb);
+                            interactionMode = "None";
+
+                            reDrawForm();
                         }
                     }
                 );
@@ -171,6 +227,8 @@ namespace FYProj
         //Add Relationship Button
         private void button2_Click(object sender, EventArgs e)
         {
+            globalEventHolder = noEvent;
+
             //Changes the interactions mode to "AddRel1" so the groupboxes can react to be selected
             if (interactionMode == "None")
             {
@@ -188,6 +246,24 @@ namespace FYProj
             this.Click += globalEventHolder;
             */
 
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            globalEventHolder = noEvent;
+            if (interactionMode == "None")
+            {
+                interactionMode = "RemoveRel1";
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            globalEventHolder = noEvent;
+            if (interactionMode == "None")
+            {
+                interactionMode = "deleteTable";
+            }
         }
 
         //HELPER FUNCTIONS
@@ -662,6 +738,31 @@ namespace FYProj
                 }
             }
             return false;
+        }
+
+        private relationshipPoint findEstablishedRel(GroupBox gbOne, GroupBox gbTwo)
+        {
+            foreach (relationshipPoint rel in RelPoints)
+            {
+                if ((rel.gb1 == gbOne || rel.gb1 == gbTwo) && (rel.gb2 == gbOne || rel.gb2 == gbTwo))
+                {
+                    return rel;
+                }
+            }
+            return null;
+        }
+
+        private List<relationshipPoint> findAllEstablishedRels(GroupBox gbOne)
+        {
+            List <relationshipPoint> matchingRels = new List<relationshipPoint>();
+            foreach (relationshipPoint rel in RelPoints)
+            {
+                if ((rel.gb1 == gbOne || rel.gb2 == gbOne))
+                {
+                    matchingRels.Add(rel);
+                }
+            }
+            return matchingRels;
         }
 
         //records the new location of a groupbox that has been moved

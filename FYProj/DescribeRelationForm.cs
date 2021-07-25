@@ -14,6 +14,7 @@ namespace FYProj
     {
 
         public string multiplicity, participation;
+        public bool actionCanceled = false;
         public Form2()
         {
             InitializeComponent();
@@ -46,7 +47,7 @@ namespace FYProj
 
         private void button1_Click(object sender, EventArgs e)
         {
-
+            actionCanceled = true;
         }
 
         private void button2_Click(object sender, EventArgs e)
