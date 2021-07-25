@@ -1,7 +1,7 @@
 ﻿
 namespace FYProj
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         ///  Required designer variable.
@@ -52,9 +52,9 @@ namespace FYProj
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flowLayoutPanel1.Controls.Add(this.button1);
             this.flowLayoutPanel1.Controls.Add(this.button2);
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 547);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 701);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(1112, 101);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(1510, 101);
             this.flowLayoutPanel1.TabIndex = 1;
             // 
             // button2
@@ -67,15 +67,15 @@ namespace FYProj
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
-            // Form1
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.ClientSize = new System.Drawing.Size(1113, 651);
+            this.ClientSize = new System.Drawing.Size(1511, 805);
             this.Controls.Add(this.flowLayoutPanel1);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Name = "MainForm";
+            this.Text = "[Program Name Placeholder]";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Click += new System.EventHandler(this.Form1_Click);
             this.flowLayoutPanel1.ResumeLayout(false);

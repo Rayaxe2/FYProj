@@ -11,7 +11,7 @@ using System.Drawing.Drawing2D;
 
 namespace FYProj
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         EventHandler globalEventHolder; //Stores a globally recognised event 
         int GBNum = 0; //An incrmental value added to the names of new groupboxes
@@ -30,7 +30,7 @@ namespace FYProj
         List<relationshipPoint> RelPoints = new List<relationshipPoint>();
         Point start, end; //Globally stores a starting point and and ending point
 
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
         }
@@ -134,15 +134,22 @@ namespace FYProj
                                 MessageBox.Show("There is already a relationship between these two tables!");
                             }
                             //Add support later
-                            else if(gb == selectedGroupBox1)
+                            else if (gb == selectedGroupBox1)
                             {
                                 MessageBox.Show("Self relationships are not supported yet!");
                             }
                             //If the relationship is new/unrecorded, it is recorded in the list of "relationshipPoints" (RelPoints)
                             else
                             {
+                                string MultAndPart = "Unspecified";
+                                //Opens form where user sepcifies the relationship between tables
+                                using (Form2 DescRelationForm = new Form2()) {
+                                    DescRelationForm.ShowDialog();
+                                    MultAndPart = DescRelationForm.multiplicity + " " + DescRelationForm.participation;
+                                } 
+
                                 end = new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2)));
-                                relationshipPoint gbLocations = new relationshipPoint(start, end, selectedGroupBox1, gb, "Nothing");
+                                relationshipPoint gbLocations = new relationshipPoint(start, end, selectedGroupBox1, gb, MultAndPart);
 
                                 RelPoints.Add(gbLocations);
 
@@ -170,6 +177,7 @@ namespace FYProj
                 interactionMode = "AddRel1";
             }
 
+            /*
             //Creates event handler for drawing lines between 2 group boxes
             EventHandler drawRelationshipEvent = (s, e) =>
             {
@@ -178,8 +186,7 @@ namespace FYProj
             //makes event handler globally referencable and assigns it to the form click event click 
             globalEventHolder = drawRelationshipEvent;
             this.Click += globalEventHolder;
-
-
+            */
 
         }
 
@@ -201,7 +208,7 @@ namespace FYProj
             {
                 Point[] clippedPoints = drawRelationshipLines(relationship);
                 //formCanvas.DrawLine(blackPen, coord.start.X, coord.start.Y, coord.end.X, coord.end.Y);
-                drawLineSymbols(clippedPoints[0], clippedPoints[1]);
+                drawLineSymbols(clippedPoints[0], clippedPoints[1], relationship.relType);
             }
         }
 
@@ -411,14 +418,15 @@ namespace FYProj
         }
 
         //Draws the relevants symbols on the relationship lines (symbols that indicate participation and multiplicity)
-        private void drawLineSymbols(Point lineStart, Point LineEnd)
+        private void drawLineSymbols(Point lineStart, Point LineEnd, string relType)
         {
             Graphics lineSymbol = CreateGraphics();
+
             Point[] anchors = calcSymbolPostions(lineStart, LineEnd, 30); //130 //Calculates the cooridnates, relative to the relationship line, that symbols will be placed on/near
-            drawMultiplicity("oneToMany", anchors[0], anchors[1], anchors[2], anchors[3], lineSymbol); //Draws multiplicity symbols 
+            drawMultiplicity(relType.Split(' ')[0], anchors[0], anchors[1], anchors[2], anchors[3], lineSymbol); //Draws multiplicity symbols 
 
             anchors = calcSymbolPostions(lineStart, LineEnd, 59); 
-            drawParticipation("optional-manditory", anchors[0], anchors[1], anchors[2], anchors[3], lineSymbol); //Draws participation symbols 
+            drawParticipation(relType.Split(' ')[1], anchors[0], anchors[1], anchors[2], anchors[3], lineSymbol); //Draws participation symbols 
         }
 
         //http://csharphelper.com/blog/2015/05/rotate-around-a-point-other-than-the-origin-in-c/
@@ -475,10 +483,10 @@ namespace FYProj
 
             //The symbol drawn depends on the relationship's multiplicity type
             switch (multiplicity) {
-                case "oneToMany":
+                case "OneToMany":
                     //Draws a short lines that intersects the relationship lines near where the relationship line touches the groupbox with the "one to..." relationship
-                    shrunkAnchor = shrinkStartPoint(startLanding, startAnchor, 0.55); //Added to move the intersecting line close to the groupbox - for asktetics 
-                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.9); //Shortens interecting line
+                    shrunkAnchor = shrinkStartPoint(endLanding, endAnchor, 0.55); //Added to move the intersecting line close to the groupbox - for asktetics 
+                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.9); //Shortens interecting line
 
                     lineSymbol.Transform = rotateLine(shrunkAnchor, 90);
                     lineSymbol.DrawLine(redPen, shrunkAnchor.X, shrunkAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
@@ -486,15 +494,15 @@ namespace FYProj
                     lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, shrunkAnchor.X, shrunkAnchor.Y);
 
                     //Draws a crows put symbol near where the relationship line touches the groupbox with the "... to many" relationship
-                    lineSymbol.Transform = rotateLine(endAnchor, 0);
-                    lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, endLanding.X, endLanding.Y);
-                    lineSymbol.Transform = rotateLine(endAnchor, 20);
-                    lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, endLanding.X, endLanding.Y);
-                    lineSymbol.Transform = rotateLine(endAnchor, 340);
-                    lineSymbol.DrawLine(redPen, endAnchor.X, endAnchor.Y, endLanding.X, endLanding.Y);
+                    lineSymbol.Transform = rotateLine(startAnchor, 0);
+                    lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
+                    lineSymbol.Transform = rotateLine(startAnchor, 20);
+                    lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
+                    lineSymbol.Transform = rotateLine(startAnchor, 340);
+                    lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
                     break;
 
-                case "oneToOne":
+                case "OneToOne":
                     //Draws an intersecting line on one end of the relationship line
                     shrunkAnchor = shrinkStartPoint(endLanding, endAnchor, 0.55);
                     shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.9);
@@ -505,8 +513,8 @@ namespace FYProj
                     lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, shrunkAnchor.X, shrunkAnchor.Y);
 
                     //Draws another intersecting line on the other end of the relationship line
-                    shrunkAnchor = shrinkStartPoint(endLanding, endAnchor, 0.55);
-                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.9);
+                    shrunkAnchor = shrinkStartPoint(startLanding, startAnchor, 0.55);
+                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.9);
 
                     lineSymbol.Transform = rotateLine(shrunkAnchor, 90);
                     lineSymbol.DrawLine(redPen, shrunkAnchor.X, shrunkAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
@@ -514,7 +522,7 @@ namespace FYProj
                     lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, shrunkAnchor.X, shrunkAnchor.Y);
                     break;
 
-                case "manyToOne":
+                case "ManyToOne":
                     //Draws a crows foot on one one end of the relationship line
                     lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
                     lineSymbol.Transform = rotateLine(startAnchor, 20);
@@ -523,8 +531,8 @@ namespace FYProj
                     lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
 
                     //Draws another intersecting line on the other end of the relationship line
-                    shrunkAnchor = shrinkStartPoint(endLanding, endAnchor, 0.55);
-                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.9);
+                    shrunkAnchor = shrinkStartPoint(startLanding, startAnchor, 0.55);
+                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.9);
 
                     lineSymbol.Transform = rotateLine(shrunkAnchor, 90);
                     lineSymbol.DrawLine(redPen, shrunkAnchor.X, shrunkAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
@@ -532,7 +540,7 @@ namespace FYProj
                     lineSymbol.DrawLine(redPen, shrunkLandings.X, shrunkLandings.Y, shrunkAnchor.X, shrunkAnchor.Y);
                     break;
 
-                case "manyToMany":
+                case "ManyToMany":
                     //Draws a crows foot on one end of the relationship line
                     lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
                     lineSymbol.Transform = rotateLine(startAnchor, 20);
@@ -563,7 +571,7 @@ namespace FYProj
             switch (participation)
             {
                 //Draws 2 circles in the calculated anchored locations (close to the respective/related multiplicity symbols)
-                case "optional-optional":
+                case "Optional-Optional":
                     //Draws Circle
                     //The circle is drawn using the coordinates of an undrawn rectangle (a rectangle object) which has coorodinates relative to the anchor 
                     //The angle of the relationship line  is used to make the orientation of the rectangle relective of the relationship line's angle
@@ -582,7 +590,7 @@ namespace FYProj
                     break;
 
                 //Draws an interecting line and a circle at appropriate locations on the relationship line
-                case "optional-manditory":
+                case "Optional-Manditory":
                     //Draws Circle
                     lineAngle = Math.Abs(((Math.Atan2((endAnchor.X - endLanding.X), (endAnchor.Y - endLanding.Y)) * 180 / Math.PI) + 180) - 360);
                     lineSymbol.Transform = rotateLine(endAnchor, (int)lineAngle + 45);
@@ -600,7 +608,7 @@ namespace FYProj
                     break;
 
                 //Draws a circles and an intersecting line at appropriate locations on the relationship line
-                case "manditory-optional":
+                case "Manditory-Optional":
                     //Draws Circle
                     lineAngle = Math.Abs(((Math.Atan2((startAnchor.X - startLanding.X), (startAnchor.Y - startLanding.Y)) * 180 / Math.PI) + 180) - 360);
                     lineSymbol.Transform = rotateLine(startAnchor, (int)lineAngle + 45);
@@ -618,7 +626,7 @@ namespace FYProj
                     break;
 
                 //Draws interecting lines at appropriate locations on the relationship line
-                case "manditory-manditory":
+                case "Manditory-Manditory":
                     //Draws interecting line
                     startAnchor = shrinkStartPoint(startLanding, startAnchor, 0.54); //0.44
                     shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.43); //0.47
