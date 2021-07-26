@@ -57,8 +57,6 @@ namespace FYProj
             bool actionCanceled;
             string tableName;
 
-
-
             using (tableNameForm nameTable = new tableNameForm())
             {
                 nameTable.ShowDialog();
@@ -147,41 +145,41 @@ namespace FYProj
                     gb.Click += new EventHandler(
                         async (s, e) => //aysnc lamda function used so when the second groupbox is selected, it's background colour could stay blue for a while (via a task delay) before setting it back to it's default colour and recording details
                         {
-                        //In the "AddRel1" interaction mode, the first selected groupbox's location is recorded and the mode is set to "AddRel2"
-                        if (interactionMode == "AddRel1")
+                            //In the "AddRel1" interaction mode, the first selected groupbox's location is recorded and the mode is set to "AddRel2"
+                            if (interactionMode == "AddRel1")
                             {
                                 gb.BackColor = Color.Red; //The first selected groupbox has it's background colour temporarily set to red
-                            selectedGroupBox1 = gb; //The selected groupbox is globally recorded to remember later
-                            interactionMode = "AddRel2";
+                                selectedGroupBox1 = gb; //The selected groupbox is globally recorded to remember later
+                                interactionMode = "AddRel2";
 
                                 start = new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2))); //The center of the groupbox is stored as it's location
-                        }
-                        //In the "AddRel2" interaction mode, the second selected groupbox's location is recorded and the mode is set back to "None"
-                        else if (interactionMode == "AddRel2")
+                            }
+                            //In the "AddRel2" interaction mode, the second selected groupbox's location is recorded and the mode is set back to "None"
+                            else if (interactionMode == "AddRel2")
                             {
                                 gb.BackColor = Color.Blue; //Temporarilily makes the background of the selected groupbox blue
-                            await Task.Delay(300); //Pauses the execution for a while before setting the groupbox's background colour back to it's default
-                            gb.BackColor = default;
+                                await Task.Delay(300); //Pauses the execution for a while before setting the groupbox's background colour back to it's default
+                                gb.BackColor = default;
                                 selectedGroupBox1.BackColor = default;
                                 interactionMode = "None";
 
-                            //Prevents the establishment of a relationship tables that already have a relationship
-                            if (isRelEstablished(gb, selectedGroupBox1) == true)
+                                //Prevents the establishment of a relationship tables that already have a relationship
+                                if (isRelEstablished(gb, selectedGroupBox1) == true)
                                 {
                                     MessageBox.Show("There is already a relationship between these two tables!");
                                 }
-                            //Add support later
-                            else if (gb == selectedGroupBox1)
+                                //Add support later
+                                else if (gb == selectedGroupBox1)
                                 {
                                     MessageBox.Show("Self relationships are not supported yet!");
                                 }
-                            //If the relationship is new/unrecorded, it is recorded in the list of "relationshipPoints" (RelPoints)
-                            else
+                                //If the relationship is new/unrecorded, it is recorded in the list of "relationshipPoints" (RelPoints)
+                                else
                                 {
                                     string MultAndPart = "Unspecified";
                                     bool actionCanceled;
-                                //Opens form where user sepcifies the relationship between tables
-                                using (Form2 DescRelationForm = new Form2())
+                                    //Opens form where user sepcifies the relationship between tables
+                                    using (Form2 DescRelationForm = new Form2())
                                     {
                                         DescRelationForm.ShowDialog();
                                         MultAndPart = DescRelationForm.multiplicity + " " + DescRelationForm.participation;
@@ -197,9 +195,9 @@ namespace FYProj
 
                                         myERModel.addRelationship(
                                             new Relationship(
-                                                MultAndPart.Split(' ')[0], 
-                                                MultAndPart.Split(' ')[1], 
-                                                myERModel.findEntity(gb.Text), 
+                                                MultAndPart.Split(' ')[0],
+                                                MultAndPart.Split(' ')[1],
+                                                myERModel.findEntity(gb.Text),
                                                 myERModel.findEntity(selectedGroupBox1.Text)
                                             )
                                         );
@@ -227,8 +225,8 @@ namespace FYProj
                                 {
                                     MessageBox.Show("There is no relationship between the selected tables!");
                                 }
-                            //Add support later
-                            else if (gb == selectedGroupBox1)
+                                //Add support later
+                                else if (gb == selectedGroupBox1)
                                 {
                                     MessageBox.Show("Self relationships are not supported yet!");
                                 }
@@ -273,6 +271,24 @@ namespace FYProj
                                 );
 
                                 reDrawForm();
+                            }
+                            else if (interactionMode == "renameTable") {
+                                String oldName = gb.Text;
+                                bool actionCanceled;
+                                string newName;
+
+                                using (renameTableForm renameTbl = new renameTableForm())
+                                {
+                                    renameTbl.ShowDialog();
+                                    newName = renameTbl.input;
+                                    actionCanceled = renameTbl.actionCanceled;
+                                }
+
+                                if (actionCanceled == false) {
+                                    gb.Text = newName;
+
+                                    myERModel.editEntityName(oldName, newName);
+                                }
                             }
                         }
                     );
@@ -326,6 +342,15 @@ namespace FYProj
             if (interactionMode == "None")
             {
                 interactionMode = "deleteTable";
+            }
+        }
+
+        private void button12_Click(object sender, EventArgs e)
+        {
+            globalEventHolder = noEvent;
+            if (interactionMode == "None")
+            {
+                interactionMode = "renameTable";
             }
         }
 

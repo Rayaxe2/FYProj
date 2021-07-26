@@ -41,6 +41,9 @@ namespace FYProj
             if (textBox1.Text == "") {
                 MessageBox.Show("Please provide a name");
             }
+            else if (MainForm.myERModel.findEntity(textBox1.Text) != null) {
+                MessageBox.Show("A table with this name already exists, please input a different name for the table");
+            }
             else {
                 tableName = textBox1.Text;
                 this.Close();

@@ -153,6 +153,17 @@ namespace FYProj
 
             return null;
         }
+
+        public void editEntityName(string oldName, string newName) {
+            foreach (Entity ent in entities)
+            {
+                if (ent.getName().Equals(oldName))
+                {
+                    ent.rename(newName);
+                    break;
+                }
+            }
+        }
     }
     
     public class Entity {
@@ -189,6 +200,18 @@ namespace FYProj
                     break;
                 }
             }
+        }
+
+        public bool fieldExists(string n)
+        {
+            foreach (EntityField entF in fields)
+            {
+                if (entF.getName() == n)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public List<EntityField> getFields()

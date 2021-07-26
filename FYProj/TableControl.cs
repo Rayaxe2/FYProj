@@ -87,7 +87,11 @@ namespace FYProj
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if ((dataGridView1.RowCount - 1) != selectedRow) {
+            if (MainForm.myERModel.findEntity(this.Parent.Text).fieldExists(textBox1.Text) && textBox1.Text != dataGridView1.Rows[selectedRow].Cells[0].Value.ToString())
+            {
+                MessageBox.Show("A field with that name already exists! Select a different name");
+            }
+            else if ((dataGridView1.RowCount - 1) != selectedRow) {
                 string nameBeforeEdit = dataGridView1.Rows[selectedRow].Cells[0].Value.ToString();
 
                 dataGridView1.Rows[selectedRow].Cells[0].Value = textBox1.Text;
@@ -115,6 +119,9 @@ namespace FYProj
             {
                 MessageBox.Show("Please provide a name for the field");
             }
+            else if (MainForm.myERModel.findEntity(this.Parent.Text).fieldExists(textBox1.Text)) {
+                MessageBox.Show("A field with that name already exists! Select a different name");
+            }
             else
             {
                 dataGridView1.Rows.Add();
@@ -133,7 +140,7 @@ namespace FYProj
                 moveAddCellUIDown(33);
                 textBox1.Text = "";
                 checkBox1.Checked = false;
-                
+
             }
         }
 

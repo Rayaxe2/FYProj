@@ -95,7 +95,7 @@ namespace FYProj
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label1);
             this.Name = "tableNameForm";
-            this.Text = "New Table";
+            this.Text = " ";
             this.Load += new System.EventHandler(this.tableNameForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
