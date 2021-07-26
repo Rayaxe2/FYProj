@@ -12,12 +12,16 @@ namespace FYProj
 {
     public partial class TableControl : UserControl
     {
+        int selectedRow;
         public TableControl()
         {
             InitializeComponent();
             dataGridView1.Rows.Add();
-            dataGridView1.RowsDefaultCellStyle.SelectionBackColor = Color.White;
-            dataGridView1.RowsDefaultCellStyle.SelectionForeColor = Color.Black;
+
+            dataGridView1.ClearSelection();
+            //dataGridView1.RowsDefaultCellStyle.SelectionBackColor = Color.White;
+            //dataGridView1.RowsDefaultCellStyle.SelectionForeColor = Color.Black;
+
             dataGridView1.Height = 60;
             this.Height = dataGridView1.Height + textBox1.Height + button1.Height + 40;
             moveAddCellUIDown(-165);
@@ -27,6 +31,63 @@ namespace FYProj
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             
+        }
+
+        private void dataGridView1_CellEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            if (dataGridView1.CurrentCell.RowIndex == dataGridView1.RowCount - 1)
+            {
+                selectedRow = dataGridView1.RowCount - 1;
+                dataGridView1.ClearSelection();
+                checkBox1.Checked = false;
+                textBox1.Text = "";
+            }
+            else {
+                textBox1.Text = dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[0].Value.ToString();
+
+                if (dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[1].Value != null)
+                {
+                    if (dataGridView1.Rows[dataGridView1.CurrentRow.Index].Cells[1].Value.ToString() == "Yes")
+                    {
+                        checkBox1.Checked = true;
+                    }
+                }
+                else {
+                    checkBox1.Checked = false;
+                }
+                selectedRow = dataGridView1.CurrentRow.Index;
+
+            }
+            
+            //MessageBox.Show(dataGridView1.CurrentCell.RowIndex.ToString());
+        }
+
+        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (dataGridView1.CurrentCell.RowIndex == dataGridView1.RowCount - 1)
+            {
+                dataGridView1.ClearSelection();
+
+                checkBox1.Checked = false;
+                textBox1.Text = "";
+            }
+            //selectedRow = dataGridView1.CurrentRow.Index;
+        }
+
+        private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (dataGridView1.CurrentCell.RowIndex == dataGridView1.RowCount - 1)
+            {
+                dataGridView1.ClearSelection();
+                checkBox1.Checked = false;
+                textBox1.Text = "";
+            }
+            //selectedRow = dataGridView1.CurrentRow.Index;
+        }
+
+        private void dataGridView1_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        {
+            dataGridView1.ClearSelection();
         }
 
         private void TableControl_Load(object sender, EventArgs e)
@@ -41,7 +102,19 @@ namespace FYProj
 
         private void button2_Click(object sender, EventArgs e)
         {
-            
+            if ((dataGridView1.RowCount - 1) != selectedRow) {
+                dataGridView1.Rows[selectedRow].Cells[0].Value = textBox1.Text;
+                if (checkBox1.Checked == true) {
+                    dataGridView1.Rows[selectedRow].Cells[1].Value = "Yes";
+                }
+                else {
+                    dataGridView1.Rows[selectedRow].Cells[1].Value = "";
+                }
+                checkBox1.Checked = false;
+                textBox1.Text = "";
+                dataGridView1.ClearSelection();
+                selectedRow = dataGridView1.RowCount - 1;
+            }
             
         }
 
@@ -57,16 +130,30 @@ namespace FYProj
                 dataGridView1.Rows[dataGridView1.RowCount - 2].Cells["Column1"].Value = textBox1.Text;
                 if (checkBox1.Checked == true)
                 {
-                    dataGridView1.Rows[dataGridView1.RowCount - 2].Cells["Column2"].Value = "\u221A";
+                    dataGridView1.Rows[dataGridView1.RowCount - 2].Cells["Column2"].Value = "Yes";
                 }
                 dataGridView1.Rows[dataGridView1.RowCount - 1].DefaultCellStyle.BackColor = Color.Gray;
                 dataGridView1.Rows[dataGridView1.RowCount - 2].DefaultCellStyle.BackColor = default;
 
                 dataGridView1.Height = dataGridView1.Height + 33;
 
-                moveAddCellUIDown(32);
+                moveAddCellUIDown(33);
                 textBox1.Text = "";
                 checkBox1.Checked = false;
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if ((dataGridView1.RowCount - 1) != selectedRow) {
+                dataGridView1.Rows.RemoveAt(selectedRow);
+
+                moveAddCellUIDown(-33);
+                dataGridView1.Height = dataGridView1.Height - 33;
+                checkBox1.Checked = false;
+                textBox1.Text = "";
+                dataGridView1.ClearSelection();
+                selectedRow = dataGridView1.RowCount - 1;
             }
         }
 
