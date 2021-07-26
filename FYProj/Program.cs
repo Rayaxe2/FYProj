@@ -85,7 +85,7 @@ namespace FYProj
     }
 
     //Class to record ER Diagram
-    class ERModel {
+    public class ERModel {
         List<Entity> entities;
         List<Relationship> relationships;
 
@@ -155,7 +155,7 @@ namespace FYProj
         }
     }
     
-    class Entity {
+    public class Entity {
         string name;
         List<EntityField> fields = new List<EntityField>();
 
@@ -167,9 +167,28 @@ namespace FYProj
             fields.Add(newField);
         }
 
-        public void removeField(EntityField existingField)
+        public void removeField(string n)
         {
-            fields.Remove(existingField);
+            foreach (EntityField entF in fields) {
+                if (entF.getName() == n) {
+                    fields.Remove(entF);
+                    break;
+                }
+            }
+            
+        }
+
+        public void editField(string oldName, string n, bool k)
+        {
+            foreach (EntityField entF in fields)
+            {
+                if (entF.getName() == oldName)
+                {
+                    entF.rename(n);
+                    entF.changeKeyState(k);
+                    break;
+                }
+            }
         }
 
         public List<EntityField> getFields()
@@ -186,13 +205,18 @@ namespace FYProj
         }
     }
 
-    class EntityField {
+    public class EntityField {
         string name;
         bool key;
 
         public EntityField(string n, bool k) {
             name = n;
             key = k;
+        }
+
+        public string getName()
+        {
+            return name;
         }
 
         public void rename(string newName) {
@@ -204,7 +228,7 @@ namespace FYProj
         }
     }
 
-    class Relationship {
+    public class Relationship {
         string multiplicity;
         string participation;
         Entity entityOne;

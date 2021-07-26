@@ -28,11 +28,6 @@ namespace FYProj
             dataGridView1.Rows[dataGridView1.RowCount - 1].DefaultCellStyle.BackColor = Color.Gray;
         }
 
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-            
-        }
-
         private void dataGridView1_CellEnter(object sender, DataGridViewCellEventArgs e)
         {
             if (dataGridView1.CurrentCell.RowIndex == dataGridView1.RowCount - 1)
@@ -90,19 +85,11 @@ namespace FYProj
             dataGridView1.ClearSelection();
         }
 
-        private void TableControl_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void button2_Click(object sender, EventArgs e)
         {
             if ((dataGridView1.RowCount - 1) != selectedRow) {
+                string nameBeforeEdit = dataGridView1.Rows[selectedRow].Cells[0].Value.ToString();
+
                 dataGridView1.Rows[selectedRow].Cells[0].Value = textBox1.Text;
                 if (checkBox1.Checked == true) {
                     dataGridView1.Rows[selectedRow].Cells[1].Value = "Yes";
@@ -110,19 +97,23 @@ namespace FYProj
                 else {
                     dataGridView1.Rows[selectedRow].Cells[1].Value = "";
                 }
+
+                //MainForm.myERModel.findEntity(this.Parent.Text).removeField(new EntityField(textBox1.Text, checkBox1.Checked));
+                MainForm.myERModel.findEntity(this.Parent.Text).editField(nameBeforeEdit, textBox1.Text, checkBox1.Checked);
+
                 checkBox1.Checked = false;
                 textBox1.Text = "";
                 dataGridView1.ClearSelection();
                 selectedRow = dataGridView1.RowCount - 1;
             }
             
-        }
+        }   
 
         private void button1_Click(object sender, EventArgs e)
         {
             if (textBox1.Text == "")
             {
-                MessageBox.Show("Please provide a name");
+                MessageBox.Show("Please provide a name for the field");
             }
             else
             {
@@ -132,20 +123,25 @@ namespace FYProj
                 {
                     dataGridView1.Rows[dataGridView1.RowCount - 2].Cells["Column2"].Value = "Yes";
                 }
+
+                MainForm.myERModel.findEntity(this.Parent.Text).addField(new EntityField(textBox1.Text, checkBox1.Checked));
+
                 dataGridView1.Rows[dataGridView1.RowCount - 1].DefaultCellStyle.BackColor = Color.Gray;
                 dataGridView1.Rows[dataGridView1.RowCount - 2].DefaultCellStyle.BackColor = default;
 
                 dataGridView1.Height = dataGridView1.Height + 33;
-
                 moveAddCellUIDown(33);
                 textBox1.Text = "";
                 checkBox1.Checked = false;
+                
             }
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
             if ((dataGridView1.RowCount - 1) != selectedRow) {
+                MainForm.myERModel.findEntity(this.Parent.Text).removeField(dataGridView1.Rows[selectedRow].Cells[0].Value.ToString());
+
                 dataGridView1.Rows.RemoveAt(selectedRow);
 
                 moveAddCellUIDown(-33);
@@ -165,6 +161,21 @@ namespace FYProj
             button1.Location = new Point(button1.Location.X, button1.Location.Y + distanceDown);
             button2.Location = new Point(button2.Location.X, button2.Location.Y + distanceDown);
             button3.Location = new Point(button3.Location.X, button3.Location.Y + distanceDown);
+        }
+
+        private void TableControl_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }

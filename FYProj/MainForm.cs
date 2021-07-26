@@ -13,7 +13,7 @@ namespace FYProj
 {
     public partial class MainForm : Form
     {
-        ERModel myERModel = new ERModel();
+        public static ERModel myERModel = new ERModel();
 
         EventHandler globalEventHolder; //Stores a globally recognised event 
         EventHandler noEvent = (s, e) => {};
