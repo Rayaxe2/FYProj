@@ -51,177 +51,210 @@ namespace FYProj
         //New Table button - button1 click event
         private void button1_Click(object sender, EventArgs e)
         {
-            //Creates the schematics for an eventhandler which adds a new groupbox to a click location on a form.
-            EventHandler addTableEvent = (s, e) => {
-                //Creates a new groupbox compoment for the form
-                GroupBox gb = new GroupBox();
-                gb.Name = "Test " + GBNum.ToString(); //GBNum adds a unique numerical value to the name
-                //Places the groupbox on the form relative to where the mouse is when clicked on the form
-                gb.Location = this.PointToClient(new Point(Cursor.Position.X, Cursor.Position.Y));
-                gb.AutoSize = true; //The Groupbox resized automatically
-                gb.Text = "Test " + GBNum.ToString();
-                GBNum += 1; //This is incremented so the next groupbox has a unique suffix to add to it's name
-                Point preDragLocation = gb.Location; //Holds the original location the groupbox was placed in
+            bool actionCanceled;
+            string tableName;
 
-                //This eventhandler is later added to the newly created groupbox to make it dragable with a right click input
-                MouseEventHandler dragTableEvent = (s, e) => {
+            using (tableNameForm nameTable = new tableNameForm())
+            {
+                nameTable.ShowDialog();
+                tableName = nameTable.tableName;
+                actionCanceled = nameTable.actionCanceled;
+            }
+            if (actionCanceled == false)
+            {
+
+                //Creates the schematics for an eventhandler which adds a new groupbox to a click location on a form.
+                EventHandler addTableEvent = (s, e) =>
+                {
+                    //Creates a new groupbox compoment for the form
+                    GroupBox gb = new GroupBox();
+                    gb.Name = tableName + GBNum.ToString(); //GBNum adds a unique numerical value to the name
+                    gb.Font = new Font(gb.Font.Name, 10);
+                    //Places the groupbox on the form relative to where the mouse is when clicked on the form
+                    gb.Location = this.PointToClient(new Point(Cursor.Position.X, Cursor.Position.Y));
+                    gb.AutoSize = true; //The Groupbox resized automatically
+                    gb.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+                    gb.Padding = new Padding(5);
+                    gb.Margin = new Padding(2);
+                    gb.Text = tableName;
+                    GBNum += 1; //This is incremented so the next groupbox has a unique suffix to add to it's name
+                    Point preDragLocation = gb.Location; //Holds the original location the groupbox was placed in
+
+                    Control innerTable = new TableControl();
+
+                    gb.Controls.Add(innerTable);
+                    gb.Controls.Find(innerTable.Name, false)[0].Location = new Point(9, 50);
+
+                    //This eventhandler is later added to the newly created groupbox to make it dragable with a right click input
+                    MouseEventHandler dragTableEvent = (s, e) =>
+                    {
                     //Moves groupbox to mouse location while moving the mouse
                     //(this event handler is added when you click down/hold mouse click on a groupbox and removed when you click up/release mouse click)
                     gb.Location = this.PointToClient(new Point(Cursor.Position.X - 15, Cursor.Position.Y - 10));
-                    recordTableRelocation(gb, new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2))));
-                    reDrawForm();
-                }; 
+                        recordTableRelocation(gb, new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2))));
+                        reDrawForm();
+                    };
 
-                //Makes groupbox follow mouse when holding mouse click
-                gb.MouseDown += new MouseEventHandler(
-                    (s, e) => {
+                    //Makes groupbox follow mouse when holding mouse click
+                    gb.MouseDown += new MouseEventHandler(
+                        (s, e) =>
+                        {
                         //Adds the aforemention event handler to mouse move event so, while the groupbox is being dragged with right clicked...
                         //The user can see the group box move with the mosue and updates being made to the for's appearance
-                        if (e.Button == MouseButtons.Right) {
-                            gb.MouseMove += dragTableEvent; 
-                            gb.ForeColor = Color.Red; //Changes the colour of the groupbox's title while it is being right clicked/moved
+                        if (e.Button == MouseButtons.Right)
+                            {
+                                gb.MouseMove += dragTableEvent;
+                                gb.ForeColor = Color.Red; //Changes the colour of the groupbox's title while it is being right clicked/moved
                         }
-                    }
-                );
+                        }
+                    );
 
-                //Makes groupbox stop following mouse when mouse click is released
-                gb.MouseUp += new MouseEventHandler(
-                    (s, e) => {
+                    //Makes groupbox stop following mouse when mouse click is released
+                    gb.MouseUp += new MouseEventHandler(
+                        (s, e) =>
+                        {
                         //Removes aforementioned event handler once the right click button has been released so the groupbox doesn't follow the mouse
                         if (e.Button == MouseButtons.Right)
-                        {
-                            gb.MouseMove -= dragTableEvent; 
-                            gb.ForeColor = default; //sets the colour of the group box title to it's default colour
+                            {
+                                gb.MouseMove -= dragTableEvent;
+                                gb.ForeColor = default; //sets the colour of the group box title to it's default colour
 
                             //If the groupbox is dragged out of bounds of the client size/form, the movement on it is undone
                             //This prevents the user from placing the groupbox out of view
                             if (gb.Location.X > this.ClientSize.Width || gb.Location.X < 0 || gb.Location.Y > this.ClientSize.Height || gb.Location.Y < 0)
-                            {
-                                gb.Location = preDragLocation;
-                            }
-                            else
-                            {
-                                preDragLocation = gb.Location;
+                                {
+                                    gb.Location = preDragLocation;
+                                }
+                                else
+                                {
+                                    preDragLocation = gb.Location;
+                                }
                             }
                         }
-                    }
-                );
+                    );
 
-                //When groupboxes are selected while in the add relationship mode, the colour is changed to indicate that they have been selected
-                //The mode interaction mode is changed to reflect the state of the interaction and selected groupboxes and their locations are recorded
-                gb.Click += new EventHandler(
-                    async (s, e) => //aysnc lamda function used so when the second groupbox is selected, it's background colour could stay blue for a while (via a task delay) before setting it back to it's default colour and recording details
-                    {
+                    //When groupboxes are selected while in the add relationship mode, the colour is changed to indicate that they have been selected
+                    //The mode interaction mode is changed to reflect the state of the interaction and selected groupboxes and their locations are recorded
+                    gb.Click += new EventHandler(
+                        async (s, e) => //aysnc lamda function used so when the second groupbox is selected, it's background colour could stay blue for a while (via a task delay) before setting it back to it's default colour and recording details
+                        {
                         //In the "AddRel1" interaction mode, the first selected groupbox's location is recorded and the mode is set to "AddRel2"
                         if (interactionMode == "AddRel1")
-                        {
-                            gb.BackColor = Color.Red; //The first selected groupbox has it's background colour temporarily set to red
+                            {
+                                gb.BackColor = Color.Red; //The first selected groupbox has it's background colour temporarily set to red
                             selectedGroupBox1 = gb; //The selected groupbox is globally recorded to remember later
                             interactionMode = "AddRel2";
 
-                            start = new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2))); //The center of the groupbox is stored as it's location
+                                start = new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2))); //The center of the groupbox is stored as it's location
                         }
                         //In the "AddRel2" interaction mode, the second selected groupbox's location is recorded and the mode is set back to "None"
                         else if (interactionMode == "AddRel2")
-                        {
-                            gb.BackColor = Color.Blue; //Temporarilily makes the background of the selected groupbox blue
+                            {
+                                gb.BackColor = Color.Blue; //Temporarilily makes the background of the selected groupbox blue
                             await Task.Delay(300); //Pauses the execution for a while before setting the groupbox's background colour back to it's default
                             gb.BackColor = default;
-                            selectedGroupBox1.BackColor = default;
-                            interactionMode = "None";
+                                selectedGroupBox1.BackColor = default;
+                                interactionMode = "None";
 
                             //Prevents the establishment of a relationship tables that already have a relationship
-                            if (isRelEstablished(gb, selectedGroupBox1) == true) {
-                                MessageBox.Show("There is already a relationship between these two tables!");
-                            }
+                            if (isRelEstablished(gb, selectedGroupBox1) == true)
+                                {
+                                    MessageBox.Show("There is already a relationship between these two tables!");
+                                }
                             //Add support later
                             else if (gb == selectedGroupBox1)
-                            {
-                                MessageBox.Show("Self relationships are not supported yet!");
-                            }
+                                {
+                                    MessageBox.Show("Self relationships are not supported yet!");
+                                }
                             //If the relationship is new/unrecorded, it is recorded in the list of "relationshipPoints" (RelPoints)
                             else
-                            {
-                                string MultAndPart = "Unspecified";
-                                bool actionCanceled;
-                                //Opens form where user sepcifies the relationship between tables
-                                using (Form2 DescRelationForm = new Form2()) {
-                                    DescRelationForm.ShowDialog();
-                                    MultAndPart = DescRelationForm.multiplicity + " " + DescRelationForm.participation;
-                                    actionCanceled = DescRelationForm.actionCanceled;
-                                }
-
-                                if (actionCanceled == false)
                                 {
-                                    end = new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2)));
-                                    relationshipPoint gbLocations = new relationshipPoint(start, end, selectedGroupBox1, gb, MultAndPart);
+                                    string MultAndPart = "Unspecified";
+                                    bool actionCanceled;
+                                //Opens form where user sepcifies the relationship between tables
+                                using (Form2 DescRelationForm = new Form2())
+                                    {
+                                        DescRelationForm.ShowDialog();
+                                        MultAndPart = DescRelationForm.multiplicity + " " + DescRelationForm.participation;
+                                        actionCanceled = DescRelationForm.actionCanceled;
+                                    }
 
-                                    RelPoints.Add(gbLocations);
+                                    if (actionCanceled == false)
+                                    {
+                                        end = new Point((gb.Location.X + (gb.Size.Width / 2)), (gb.Location.Y + (gb.Size.Height / 2)));
+                                        relationshipPoint gbLocations = new relationshipPoint(start, end, selectedGroupBox1, gb, MultAndPart);
+
+                                        RelPoints.Add(gbLocations);
 
                                     //The graphics on the from are redrawn to add graphics to represent the new relationship
                                     reDrawForm();
+                                    }
                                 }
                             }
-                        }
-                        else if (interactionMode == "RemoveRel1")
-                        {
-                            gb.BackColor = Color.Green;
-                            selectedGroupBox1 = gb;
-                            interactionMode = "RemoveRel2";
-                        }
-                        else if (interactionMode == "RemoveRel2")
-                        {
-                            gb.BackColor = Color.Yellow;
-                            await Task.Delay(300);
-                            gb.BackColor = default;
-                            selectedGroupBox1.BackColor = default;
-                            interactionMode = "None";
-
-                            if (isRelEstablished(gb, selectedGroupBox1) == false)
+                            else if (interactionMode == "RemoveRel1")
                             {
-                                MessageBox.Show("There is no relationship between the selected tables!");
+                                gb.BackColor = Color.Green;
+                                selectedGroupBox1 = gb;
+                                interactionMode = "RemoveRel2";
                             }
-                            //Add support later
-                            else if (gb == selectedGroupBox1)
+                            else if (interactionMode == "RemoveRel2")
                             {
-                                MessageBox.Show("Self relationships are not supported yet!");
-                            }
-                            else
-                            {
-                                relationshipPoint relation = findEstablishedRel(gb, selectedGroupBox1);
+                                gb.BackColor = Color.Yellow;
+                                await Task.Delay(300);
+                                gb.BackColor = default;
+                                selectedGroupBox1.BackColor = default;
+                                interactionMode = "None";
 
-                                if (relation == null)
+                                if (isRelEstablished(gb, selectedGroupBox1) == false)
                                 {
                                     MessageBox.Show("There is no relationship between the selected tables!");
                                 }
-                                else {
+                            //Add support later
+                            else if (gb == selectedGroupBox1)
+                                {
+                                    MessageBox.Show("Self relationships are not supported yet!");
+                                }
+                                else
+                                {
+                                    relationshipPoint relation = findEstablishedRel(gb, selectedGroupBox1);
+
+                                    if (relation == null)
+                                    {
+                                        MessageBox.Show("There is no relationship between the selected tables!");
+                                    }
+                                    else
+                                    {
+                                        RelPoints.Remove(relation);
+                                    }
+                                    reDrawForm();
+                                }
+                            }
+                            else if (interactionMode == "deleteTable")
+                            {
+                                gb.BackColor = Color.White;
+                                await Task.Delay(300);
+
+                                List<relationshipPoint> tableRels = findAllEstablishedRels(gb);
+                                foreach (relationshipPoint relation in tableRels)
+                                {
                                     RelPoints.Remove(relation);
                                 }
+                                this.Controls.Remove(gb);
+                                interactionMode = "None";
+
                                 reDrawForm();
                             }
                         }
-                        else if (interactionMode == "deleteTable") {
-                            gb.BackColor = Color.White;
-                            await Task.Delay(300);
+                    );
+                    //The above event handlers are added to the newly created groupboxes
+                    this.Controls.Add(gb);
 
-                            List<relationshipPoint> tableRels = findAllEstablishedRels(gb);
-                            foreach (relationshipPoint relation in tableRels) {
-                                RelPoints.Remove(relation);
-                            }
-                            this.Controls.Remove(gb);
-                            interactionMode = "None";
-
-                            reDrawForm();
-                        }
-                    }
-                );
-                //The above event handlers are added to the newly created groupboxes
-                this.Controls.Add(gb);
-            };
-            //Stores the eventhandeler object in the global eventhandler object "globalEventHolder" 
-            globalEventHolder = addTableEvent;
-            //When form is clicked again, the eventhandler in triggered (this adds the eventhandler to the form's click event)
-            this.Click += globalEventHolder;
+                };
+                //Stores the eventhandeler object in the global eventhandler object "globalEventHolder" 
+                globalEventHolder = addTableEvent;
+                //When form is clicked again, the eventhandler in triggered (this adds the eventhandler to the form's click event)
+                this.Click += globalEventHolder;
+            }
         }
 
         //Add Relationship Button
@@ -607,8 +640,8 @@ namespace FYProj
                     lineSymbol.DrawLine(redPen, startAnchor.X, startAnchor.Y, startLanding.X, startLanding.Y);
 
                     //Draws another intersecting line on the other end of the relationship line
-                    shrunkAnchor = shrinkStartPoint(startLanding, startAnchor, 0.55);
-                    shrunkLandings = shrinkStartPoint(startAnchor, startLanding, 0.9);
+                    shrunkAnchor = shrinkStartPoint(endLanding, endAnchor, 0.55);
+                    shrunkLandings = shrinkStartPoint(endAnchor, endLanding, 0.9);
 
                     lineSymbol.Transform = rotateLine(shrunkAnchor, 90);
                     lineSymbol.DrawLine(redPen, shrunkAnchor.X, shrunkAnchor.Y, shrunkLandings.X, shrunkLandings.Y);
