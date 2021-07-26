@@ -13,6 +13,8 @@ namespace FYProj
 {
     public partial class MainForm : Form
     {
+        ERModel myERModel = new ERModel();
+
         EventHandler globalEventHolder; //Stores a globally recognised event 
         EventHandler noEvent = (s, e) => {};
         int GBNum = 0; //An incrmental value added to the names of new groupboxes
@@ -46,6 +48,7 @@ namespace FYProj
         {
             //If the globalEventHolder eventhandler is associated to the click event for the form, it is removed when the form is clicked
             this.Click -= globalEventHolder;
+            enableMainFormButtons();
         }
 
         //New Table button - button1 click event
@@ -54,14 +57,20 @@ namespace FYProj
             bool actionCanceled;
             string tableName;
 
+
+
             using (tableNameForm nameTable = new tableNameForm())
             {
                 nameTable.ShowDialog();
                 tableName = nameTable.tableName;
                 actionCanceled = nameTable.actionCanceled;
             }
+
             if (actionCanceled == false)
             {
+                disableMainFormButtons();
+
+                myERModel.addEntity(new Entity(tableName));
 
                 //Creates the schematics for an eventhandler which adds a new groupbox to a click location on a form.
                 EventHandler addTableEvent = (s, e) =>
@@ -186,8 +195,17 @@ namespace FYProj
 
                                         RelPoints.Add(gbLocations);
 
-                                    //The graphics on the from are redrawn to add graphics to represent the new relationship
-                                    reDrawForm();
+                                        myERModel.addRelationship(
+                                            new Relationship(
+                                                MultAndPart.Split(' ')[0], 
+                                                MultAndPart.Split(' ')[1], 
+                                                myERModel.findEntity(gb.Text), 
+                                                myERModel.findEntity(selectedGroupBox1.Text)
+                                            )
+                                        );
+
+                                        //The graphics on the from are redrawn to add graphics to represent the new relationship
+                                        reDrawForm();
                                     }
                                 }
                             }
@@ -226,6 +244,14 @@ namespace FYProj
                                     {
                                         RelPoints.Remove(relation);
                                     }
+
+                                    myERModel.removeRelationship(
+                                        myERModel.findRelationship(
+                                            gb.Text,
+                                            selectedGroupBox1.Text
+                                        )
+                                    );
+
                                     reDrawForm();
                                 }
                             }
@@ -241,6 +267,10 @@ namespace FYProj
                                 }
                                 this.Controls.Remove(gb);
                                 interactionMode = "None";
+
+                                myERModel.removeEntity(
+                                    myERModel.findEntity(gb.Text)
+                                );
 
                                 reDrawForm();
                             }
@@ -762,6 +792,20 @@ namespace FYProj
                 default:
                     break;
             }
+        }
+
+        private void disableMainFormButtons() {
+            button1.Enabled = false;
+            button2.Enabled = false;
+            button3.Enabled = false;
+            button4.Enabled = false;
+        }
+
+        private void enableMainFormButtons() {
+            button1.Enabled = true;
+            button2.Enabled = true;
+            button3.Enabled = true;
+            button4.Enabled = true;
         }
 
         //Checks if 2 groupboxes have a relationship associated to them/the tables they are associated with

@@ -123,6 +123,36 @@ namespace FYProj
         {
             return relationships;
         }
+
+        public Entity findEntity(string entityName) {
+            foreach (Entity ent in entities) {
+                if (ent.getName().Equals(entityName)) {
+                    return ent;
+                }
+            }
+            return null;
+        }
+
+        public Relationship findRelationship(string ent1, string ent2) {
+            Entity entOne = findEntity(ent1);
+            Entity entTwo = findEntity(ent2);
+
+            if (entOne == null || entTwo == null)
+            {
+                return null;
+            }
+
+            Entity[] relatedEnts;
+
+            foreach (Relationship rel in relationships) {
+                relatedEnts = rel.relatedEntities();
+                if ((relatedEnts[0] == entOne && relatedEnts[1] == entTwo) || (relatedEnts[1] == entOne && relatedEnts[0] == entTwo)) {
+                    return rel;
+                }
+            }
+
+            return null;
+        }
     }
     
     class Entity {
@@ -149,6 +179,10 @@ namespace FYProj
 
         public void rename(string newName) {
             name = newName;
+        }
+
+        public string getName() {
+            return name;
         }
     }
 
@@ -181,6 +215,10 @@ namespace FYProj
             participation = part;
             entityOne = ent1;
             entityTwo = ent2;
+        }
+
+        public Entity[] relatedEntities() { 
+            return new Entity[]{ entityOne, entityTwo };
         }
     }
 }
