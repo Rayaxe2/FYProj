@@ -83,4 +83,104 @@ namespace FYProj
             return GroupBoxDimensions;
         }
     }
+
+    //Class to record ER Diagram
+    class ERModel {
+        List<Entity> entities;
+        List<Relationship> relationships;
+
+        public ERModel() {
+            entities = new List<Entity>();
+            relationships = new List<Relationship>();
+        }
+
+        public void addEntity(Entity newEntity) 
+        {
+            entities.Add(newEntity);
+        }
+
+        public void removeEntity(Entity existingEntity)
+        {
+            entities.Remove(existingEntity);
+        }
+
+        public List<Entity> getEntities()
+        {
+            return entities;
+        }
+
+        public void addRelationship(Relationship newRelationship)
+        {
+            relationships.Add(newRelationship);
+        }
+
+        public void removeRelationship(Relationship existingRelationship)
+        {
+            relationships.Remove(existingRelationship);
+        }
+
+        public List<Relationship> getRelationships()
+        {
+            return relationships;
+        }
+    }
+    
+    class Entity {
+        string name;
+        List<EntityField> fields = new List<EntityField>();
+
+        public Entity(string entityName) {
+            name = entityName;
+        }
+
+        public void addField(EntityField newField) {
+            fields.Add(newField);
+        }
+
+        public void removeField(EntityField existingField)
+        {
+            fields.Remove(existingField);
+        }
+
+        public List<EntityField> getFields()
+        {
+            return fields;
+        }
+
+        public void rename(string newName) {
+            name = newName;
+        }
+    }
+
+    class EntityField {
+        string name;
+        bool key;
+
+        public EntityField(string n, bool k) {
+            name = n;
+            key = k;
+        }
+
+        public void rename(string newName) {
+            name = newName;
+        }
+
+        public void changeKeyState(bool newState) {
+            key = newState;
+        }
+    }
+
+    class Relationship {
+        string multiplicity;
+        string participation;
+        Entity entityOne;
+        Entity entityTwo;
+
+        public Relationship(string mult, string part, Entity ent1, Entity ent2) {
+            multiplicity = mult;
+            participation = part;
+            entityOne = ent1;
+            entityTwo = ent2;
+        }
+    }
 }

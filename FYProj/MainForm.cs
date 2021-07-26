@@ -688,6 +688,7 @@ namespace FYProj
                     lineAngle = Math.Abs(((Math.Atan2((startAnchor.X - startLanding.X), (startAnchor.Y - startLanding.Y)) * 180 / Math.PI) + 180) - 360);
                     lineSymbol.Transform = rotateLine(startAnchor, (int) lineAngle + 45);
                     circleBounds = new Rectangle(startAnchor, new Size(25, 25));;
+                    lineSymbol.FillEllipse(new SolidBrush(this.BackColor), circleBounds);
                     lineSymbol.DrawEllipse(redPen, circleBounds);
 
                     //Draws another Circle
@@ -695,6 +696,7 @@ namespace FYProj
                     lineSymbol.Transform = rotateLine(endAnchor, (int)lineAngle + 45);
                     circleBounds = new Rectangle(endAnchor, new Size(25, 25));
                     //lineSymbol.DrawRectangle(redPen, circleBounds);
+                    lineSymbol.FillEllipse(new SolidBrush(this.BackColor), circleBounds);
                     lineSymbol.DrawEllipse(redPen, circleBounds);
                     break;
 
@@ -704,6 +706,7 @@ namespace FYProj
                     lineAngle = Math.Abs(((Math.Atan2((endAnchor.X - endLanding.X), (endAnchor.Y - endLanding.Y)) * 180 / Math.PI) + 180) - 360);
                     lineSymbol.Transform = rotateLine(endAnchor, (int)lineAngle + 45);
                     circleBounds = new Rectangle(endAnchor, new Size(25, 25));
+                    lineSymbol.FillEllipse(new SolidBrush(this.BackColor), circleBounds);
                     lineSymbol.DrawEllipse(redPen, circleBounds);
 
                     //Draws interecting line
@@ -721,7 +724,8 @@ namespace FYProj
                     //Draws Circle
                     lineAngle = Math.Abs(((Math.Atan2((startAnchor.X - startLanding.X), (startAnchor.Y - startLanding.Y)) * 180 / Math.PI) + 180) - 360);
                     lineSymbol.Transform = rotateLine(startAnchor, (int)lineAngle + 45);
-                    circleBounds = new Rectangle(startAnchor, new Size(25, 25)); ;
+                    circleBounds = new Rectangle(startAnchor, new Size(25, 25));
+                    lineSymbol.FillEllipse(new SolidBrush(this.BackColor), circleBounds);
                     lineSymbol.DrawEllipse(redPen, circleBounds);
 
                     //Draws interecting line
