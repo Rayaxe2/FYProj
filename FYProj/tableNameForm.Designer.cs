@@ -89,13 +89,14 @@ namespace FYProj
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(230, 235);
+            this.ControlBox = false;
             this.Controls.Add(this.label2);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label1);
             this.Name = "tableNameForm";
-            this.Text = " ";
+            this.Text = " Name Table";
             this.Load += new System.EventHandler(this.tableNameForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
